@@ -1,0 +1,25 @@
+/*
+** EPITECH PROJECT, 2026
+** shell.h
+** File description:
+** shell state + main loop API
+*/
+
+#ifndef LOOP_H_
+    #define LOOP_H_
+
+    #include <unistd.h>
+    #include <stdbool.h>
+
+typedef struct {
+    char **env;
+    int last_status;
+    char *line;
+    pid_t last_pid;
+} shell_t;
+
+bool shell_init(shell_t *shell, char **envp);
+void display_marrashell(void);
+int shell_loop(shell_t *sh);
+
+#endif // !LOOP_H_
