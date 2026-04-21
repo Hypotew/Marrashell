@@ -12,42 +12,37 @@
 #include <string.h>
 #include <stdlib.h>
 
-static int get_history_size(history_t *history)
+static bool line_matches_target(const char *line, const char *target)
+{
+    char *content = strstr(line, "  ");
+
+    if (!content)
+        return false;
+    return strstr(content + 2, target) != NULL;
+}
+
+static int print_history_after_target(history_t *history, char *target)
 {
     char *line = NULL;
     size_t len = 0;
-    unsigned long long count = 0;
+    bool target_found = false;
 
     history->fd = fopen("history", "r");
-    if (!history->fd) {
-        history->nb_lines = 0;
-        return SUCCESS_EXIT;
+    if (!history->fd)
+        return FAILURE_EXIT;
+    while (getline(&line, &len, history->fd) != -1) {
+        if (!target_found && line_matches_target(line, target))
+            target_found = true;
+        if (target_found)
+            printf("%s", line);
     }
-    while (getline(&line, &len, history->fd) != -1)
-        count++;
     free(line);
-    history->nb_lines = count;
     fclose(history->fd);
     history->fd = NULL;
     return SUCCESS_EXIT;
 }
 
-int add_to_history(char *line)
-{
-    history_t history = {0};
-
-    if (get_history_size(&history) == FAILURE_EXIT)
-        return FAILURE_EXIT;
-    history.fd = fopen("history", "a");
-    if (!history.fd)
-        return FAILURE_EXIT;
-    history.nb_lines++;
-    fprintf(history.fd, "%llu  %s", history.nb_lines, line);
-    fclose(history.fd);
-    return SUCCESS_EXIT;
-}
-
-static int print_history(history_t *history)
+static int print_all_history(history_t *history)
 {
     char *line = NULL;
     size_t len = 0;
@@ -68,8 +63,7 @@ int history(shell_t *shell, char **argv)
     history_t history = {0};
 
     (void)shell;
-    (void)argv;
-    if (print_history(&history) == FAILURE_EXIT)
-        return FAILURE_EXIT;
-    return SUCCESS_EXIT;
+    if (argv[1] != NULL)
+        return print_history_after_target(&history, argv[1]);
+    return print_all_history(&history);
 }

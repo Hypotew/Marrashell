@@ -29,8 +29,8 @@ int shell_loop(shell_t *shell)
         nread = getline(&shell->line, &cap, stdin);
         if (nread == -1)
             break;
-        add_to_history(shell->line);
         status = run_command(shell, shell->line);
+        add_to_history(shell);
     }
     return shell->last_status;
 }

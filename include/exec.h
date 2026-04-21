@@ -34,6 +34,5 @@ char *find_path_value(char **env);
 char *build_exec_path(char **env, char *exe);
 int validate_exec_target(char *command, char *exe_path, bool from_path);
 void print_path_not_set(void);
-int add_to_history(char *line);
 
 #endif // !EXEC_H_
