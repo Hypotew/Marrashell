@@ -22,6 +22,7 @@ typedef struct {
 typedef struct {
     FILE *fd;
     unsigned long long nb_lines;
+    char *last_cmd;
 } history_t;
 
 bool run_builtin(shell_t *shell, char **argv, bool *should_exit);
@@ -34,6 +35,6 @@ int my_unsetenv(shell_t *shell, char **argv);
 int my_env(shell_t *shell, char **argv);
 int echo_last_status(shell_t *shell, char **argv);
 int history(shell_t *shell, char **argv);
-int add_to_history(char *line);
+int add_to_history(shell_t *shell);
 
 #endif // !BUILTINS_H_
