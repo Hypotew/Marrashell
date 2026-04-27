@@ -50,11 +50,27 @@ static const char *const BANNER[] = {
     NULL
 };
 
-void display_marrashell(void)
+int display_marrashell(void)
 {
     for (size_t i = 0; BANNER[i] != NULL; i++)
-        printf("%s", BANNER[i]);
-    printf("\n\n");
+        if (printf("%s", BANNER[i]) < 0)
+            return FAILURE_EXIT;
+    if (printf("\n\n") < 0)
+        return FAILURE_EXIT;
+    return SUCCESS_EXIT;
+}
+
+int display_prompt(void)
+{
+    char cwd[4096];
+
+    if (getcwd(cwd, sizeof(cwd)) == NULL)
+        return FAILURE_EXIT;
+    if (printf("%s ", cwd) < 0)
+        return FAILURE_EXIT;
+    if (printf("%s", SUCCESS_PROMPT) < 0)
+        return FAILURE_EXIT;
+    return SUCCESS_EXIT;
 }
 
 bool shell_init(shell_t *shell, char **envp)

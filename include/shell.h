@@ -19,7 +19,8 @@ typedef struct {
 } shell_t;
 
 bool shell_init(shell_t *shell, char **envp);
-void display_marrashell(void);
+int display_marrashell(void);
+int display_prompt(void);
 int shell_loop(shell_t *sh);
 
 #endif // !LOOP_H_

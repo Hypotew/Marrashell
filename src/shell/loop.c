@@ -22,10 +22,11 @@ int shell_loop(shell_t *shell)
     enum shell_status status = SHELL_CONTINUE;
     bool is_interactive = isatty(STDIN_FILENO);
 
-    display_marrashell();
+    if (display_marrashell() == FAILURE_EXIT)
+        return FAILURE_EXIT;
     while (status == SHELL_CONTINUE) {
-        if (is_interactive)
-            printf("%s", SUCCESS_PROMPT);
+        if (is_interactive && display_prompt() == FAILURE_EXIT)
+            return FAILURE_EXIT;
         nread = getline(&shell->line, &cap, stdin);
         if (nread == -1)
             break;
