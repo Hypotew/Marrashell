@@ -8,7 +8,7 @@
 #include "builtins.h"
 #include "mysh.h"
 #include "env.h"
-#include "my.h"
+#include "utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>

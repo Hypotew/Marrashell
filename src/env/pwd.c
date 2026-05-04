@@ -7,7 +7,7 @@
 
 #include "env.h"
 #include "mysh.h"
-#include "my.h"
+#include "utils.h"
 
 #include <stdlib.h>
 #include <string.h>
