@@ -59,8 +59,10 @@ static int append_env_entry(shell_t *shell, char *entry)
     char **new_env = malloc(sizeof(char *) * (env_len + 2));
     char **old_env = shell->env;
 
-    if (new_env == NULL)
+    if (new_env == NULL) {
+        free(entry);
         return FAILURE_EXIT;
+    }
     for (size_t i = 0; i < env_len; ++i)
         new_env[i] = old_env[i];
     new_env[env_len] = entry;
