@@ -1,0 +1,222 @@
+name: Mirror & Build tests
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  push:
+
+env:
+  REPO_ORGA: "git@github.com:EpitechPGE1-2025/G-PSU-200-MPL-2-1-42sh-6.git"
+  REPO: "git@github.com:Hypotew/Marrashell.git"
+  EXECUTABLE: "42sh"
+
+jobs:
+
+  # ─────────────────────────────────────────────
+  # GARDE-FOU : bloque la boucle infinie
+  # ─────────────────────────────────────────────
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+    steps:
+      - name: Check if triggered by bot
+        id: check
+        run: |
+          if [ "${{ github.actor }}" = "github-actions[bot]" ]; then
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          fi
+
+  # ─────────────────────────────────────────────
+  # 1. Mirror + détection de changements
+  # ─────────────────────────────────────────────
+  sync:
+    needs: [guard]
+    if: needs.guard.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.check_changes.outputs.changed }}
+
+    steps:
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+
+      - name: Clone orga repo
+        run: |
+          git clone ${{ env.REPO }} upstream
+          cd upstream
+          git remote add mirror ${{ env.REPO_ORGA }}
+
+      - name: Check for changes vs mirror
+        id: check_changes
+        run: |
+          cd upstream
+          MIRROR_SHA=$(git ls-remote ${{ env.REPO_ORGA }} refs/heads/main | awk '{print $1}')
+          ORGA_SHA=$(git rev-parse HEAD)
+          echo "Orga SHA  : $ORGA_SHA"
+          echo "Mirror SHA: $MIRROR_SHA"
+          if [ "$ORGA_SHA" != "$MIRROR_SHA" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push to mirror (only if changed)
+        if: steps.check_changes.outputs.changed == 'true'
+        run: |
+          cd upstream
+          git push mirror main --force
+
+  # ─────────────────────────────────────────────
+  # 2. Build de base
+  # ─────────────────────────────────────────────
+  basic-build:
+    needs: [sync]
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: make
+        run: make CC=gcc
+      - name: make clean
+        run: make clean
+      - name: make fclean
+        run: make fclean
+      - name: make re
+        run: make CC=gcc re
+      - name: check binary
+        run: ls -l ./${{ env.EXECUTABLE }}
+
+  # ─────────────────────────────────────────────
+  # 3. Coding style
+  # ─────────────────────────────────────────────
+  cs-build:
+    needs: [sync, basic-build]
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy Dockerfile inside root
+        run: cp ./.github/Dockerfile ./Dockerfile
+      - name: Build coding-style tests
+        run: docker build . -t cs-test
+      - name: Run coding-style tests
+        run: docker run cs-test:latest
+
+  # ─────────────────────────────────────────────
+  # 4. Coverage
+  # ─────────────────────────────────────────────
+  coverage-build:
+    needs: [sync, basic-build]
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy Dockerfile inside root
+        run: cp ./.github/Dockerfile2 ./Dockerfile
+      - name: Build coverage tests
+        run: docker build . -t coverage-test
+      - name: Run coverage tests
+        run: docker run coverage-test:latest
+
+  # ─────────────────────────────────────────────
+  # 5. Valgrind
+  # ─────────────────────────────────────────────
+  valgrind-build:
+    needs: [sync, basic-build]
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: update apt
+        run: sudo apt-get update
+      - name: setup valgrind
+        run: sudo apt-get install -y valgrind
+      - name: make
+        run: make CC=gcc
+      - name: check file
+        run: ls -l ./${{ env.EXECUTABLE }}
+      - name: run valgrind
+        run: |
+          printf "ls\necho hello\nexit\n" | valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1 ./${{ env.EXECUTABLE }}
+      - name: clean
+        run: make fclean
+
+  # ─────────────────────────────────────────────
+  # 6. Scan-build
+  # ─────────────────────────────────────────────
+  scan-build-test:
+    needs: [sync, basic-build]
+    if: needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy Dockerfile inside root
+        run: cp ./.github/Dockerfile3 ./Dockerfile
+      - name: Build scan-build tests
+        run: docker build . -t scan-build-test
+      - name: Run scan-build tests
+        run: docker run scan-build-test:latest
+
+  # ─────────────────────────────────────────────
+  # 7. Notif Discord UNIQUE
+  #    Skippé si aucun changement détecté
+  # ─────────────────────────────────────────────
+  notify:
+    needs: [guard, sync, basic-build, cs-build, coverage-build, valgrind-build, scan-build-test]
+    if: always() && needs.guard.outputs.should_run == 'true' && needs.sync.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+
+    env:
+      R_BUILD:  ${{ needs.basic-build.result }}
+      R_CS:     ${{ needs.cs-build.result }}
+      R_COV:    ${{ needs.coverage-build.result }}
+      R_VAL:    ${{ needs.valgrind-build.result }}
+      R_SCAN:   ${{ needs.scan-build-test.result }}
+      SHA:      ${{ github.sha }}
+      ACTOR:    ${{ github.actor }}
+
+    steps:
+      - name: Build summary
+        id: summary
+        run: |
+          icon() { [ "$1" = "success" ] && echo "OK" || echo "FAIL"; }
+
+          if echo "$R_BUILD $R_CS $R_COV $R_VAL $R_SCAN" | grep -q "failure"; then
+            TITLE="ECHEC : des tests ont echoue"
+          else
+            TITLE="SUCCES : tous les tests sont passes"
+          fi
+
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+
+          {
+            echo "description<<EOF"
+            echo "Build de base : $(icon $R_BUILD) $R_BUILD"
+            echo "Coding style  : $(icon $R_CS) $R_CS"
+            echo "Coverage      : $(icon $R_COV) $R_COV"
+            echo "Valgrind      : $(icon $R_VAL) $R_VAL"
+            echo "Scan-build    : $(icon $R_SCAN) $R_SCAN"
+            echo ""
+            echo "Commit : $SHA"
+            echo "Auteur : $ACTOR"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Send Discord notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: ${{ steps.summary.outputs.title }}
+          description: ${{ steps.summary.outputs.description }}
