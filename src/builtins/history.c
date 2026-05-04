@@ -8,6 +8,7 @@
 #include "builtins.h"
 #include "mysh.h"
 #include "shell.h"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -27,7 +28,7 @@ static int print_history_after_target(history_t *history, char *target)
     size_t len = 0;
     bool target_found = false;
 
-    history->fd = fopen("history", "r");
+    history->fd = fopen(HISTORY_FILE, "r");
     if (!history->fd)
         return FAILURE_EXIT;
     while (getline(&line, &len, history->fd) != -1) {
@@ -47,7 +48,7 @@ static int print_all_history(history_t *history)
     char *line = NULL;
     size_t len = 0;
 
-    history->fd = fopen("history", "r");
+    history->fd = fopen(HISTORY_FILE, "r");
     if (!history->fd)
         return FAILURE_EXIT;
     while (getline(&line, &len, history->fd) != -1)

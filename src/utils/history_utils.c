@@ -18,7 +18,7 @@ static int get_history_size(history_t *history)
     size_t len = 0;
     unsigned long long count = 0;
 
-    history->fd = fopen("history", "r");
+    history->fd = fopen(HISTORY_FILE, "r");
     if (!history->fd) {
         history->nb_lines = 0;
         return SUCCESS_EXIT;
@@ -62,7 +62,7 @@ static int get_last_history_command(history_t *history)
     char *line = NULL;
     size_t len = 0;
 
-    history->fd = fopen("history", "r");
+    history->fd = fopen(HISTORY_FILE, "r");
     if (!history->fd)
         return SUCCESS_EXIT;
     while (getline(&line, &len, history->fd) != -1)
@@ -117,7 +117,7 @@ int add_to_history(shell_t *shell)
         free(history.last_cmd);
         return SUCCESS_EXIT;
     }
-    history.fd = fopen("history", "a");
+    history.fd = fopen(HISTORY_FILE, "a");
     if (!history.fd) {
         free(history.last_cmd);
         return FAILURE_EXIT;

@@ -5,8 +5,6 @@
 ** NULL-terminated string array utilities
 */
 
-#include "my.h"
-
 #include <stdlib.h>
 #include <string.h>
 

@@ -29,7 +29,6 @@ command_group_t *create_group(void)
         return NULL;
     grp->pipeline = NULL;
     grp->next = NULL;
-    grp->is_at = false;
     return grp;
 }
 

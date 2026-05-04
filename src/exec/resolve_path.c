@@ -6,7 +6,7 @@
 */
 
 #include "exec.h"
-#include "my.h"
+#include "utils.h"
 #include "mysh.h"
 
 #include <stdio.h>

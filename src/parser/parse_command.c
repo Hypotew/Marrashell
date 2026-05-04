@@ -72,30 +72,6 @@ static parse_status_t handle_semi(parse_ctx_t *ctx)
     return PARSE_OK;
 }
 
-static parse_status_t handle_at(parse_ctx_t *ctx)
-{
-    command_group_t *new_grp = NULL;
-    command_t *new_cmd = NULL;
-
-    if (ctx->pending_redir != REDIR_NONE)
-        return PARSE_ERR_SYNTAX;
-    if (ctx->current_cmd->argv == NULL && ctx->current_grp->pipeline == NULL) {
-        if (ctx->current_grp == ctx->groups)
-            return PARSE_ERR_SYNTAX;
-        return PARSE_OK;
-    }
-    ctx->current_grp->is_at = true;
-    append_cmd_to_grp_pipeline(ctx->current_cmd, ctx->current_grp);
-    append_grp_to_grp_list(ctx->current_grp, ctx->groups);
-    new_grp = create_group();
-    new_cmd = create_command();
-    if (new_grp == NULL || new_cmd == NULL)
-        return PARSE_ERR_FATAL;
-    ctx->current_grp = new_grp;
-    ctx->current_cmd = new_cmd;
-    return PARSE_OK;
-}
-
 static parse_status_t handle_token(token_t *token, parse_ctx_t *ctx)
 {
     if (token->type == TOK_WORD)
@@ -106,8 +82,6 @@ static parse_status_t handle_token(token_t *token, parse_ctx_t *ctx)
         return handle_pipe(ctx);
     if (token->type == TOK_SEMI)
         return handle_semi(ctx);
-    if (token->type == TOK_AT)
-        return handle_at(ctx);
     return PARSE_OK;
 }
 
