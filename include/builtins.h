@@ -8,6 +8,8 @@
 #ifndef BUILTINS_H_
     #define BUILTINS_H_
 
+    #define HISTORY_FILE ".42sh_history"
+
     #include <stdbool.h>
     #include <stdio.h>
     #include "exec.h"
