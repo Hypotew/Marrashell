@@ -115,8 +115,6 @@ static enum shell_status run_groups(shell_t *shell, command_group_t *groups)
         run_pipeline(shell, grp->pipeline, &should_exit);
         if (should_exit)
             return SHELL_EXIT;
-        if (grp->is_at)
-            sleep(3);
     }
     return SHELL_CONTINUE;
 }

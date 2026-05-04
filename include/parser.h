@@ -15,7 +15,6 @@ typedef enum {
     TOK_NONE,
     TOK_WORD,
     TOK_SEMI,
-    TOK_AT,
     TOK_PIPE,
     TOK_REDIR_IN,
     TOK_REDIR_OUT,
@@ -34,7 +33,6 @@ static const op_def_t G_OPS[] = {
     {">>", TOK_APPEND, 2},
     {"|", TOK_PIPE, 1},
     {";", TOK_SEMI, 1},
-    {"@", TOK_AT, 1},
     {"<", TOK_REDIR_IN, 1},
     {">", TOK_REDIR_OUT, 1},
     {NULL, TOK_NONE, 1}
@@ -70,7 +68,6 @@ typedef struct s_command {
 typedef struct s_command_group {
     command_t *pipeline;
     struct s_command_group *next;
-    bool is_at;
 } command_group_t;
 
 typedef enum {
