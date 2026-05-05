@@ -40,7 +40,7 @@ bool is_a_dir(const char *target)
     struct stat st;
 
     if (stat(target, &st) == -1)
-        return true;
+        return false;
     if (!S_ISDIR(st.st_mode)) {
         fprintf(stderr, "%s", target);
         fprintf(stderr, "%s", ": Not a directory.");
