@@ -19,8 +19,25 @@ typedef enum {
     TOK_REDIR_IN,
     TOK_REDIR_OUT,
     TOK_APPEND,
-    TOK_HEREDOC
+    TOK_HEREDOC,
+    TOK_AND,
+    TOK_OR
 } token_type_t;
+
+typedef enum {
+    REDIR_IN,
+    REDIR_OUT,
+    REDIR_APPEND,
+    REDIR_HEREDOC,
+    REDIR_NONE
+} redir_type_t;
+
+typedef enum {
+    SEP_SEMI,
+    SEP_AND,
+    SEP_OR,
+    SEP_NONE,
+} separator_type_t;
 
 typedef struct {
     const char *text;
@@ -31,20 +48,14 @@ typedef struct {
 static const op_def_t G_OPS[] = {
     {"<<", TOK_HEREDOC, 2},
     {">>", TOK_APPEND, 2},
+    {"&&", TOK_AND, 2},
+    {"||", TOK_OR, 2},
     {"|", TOK_PIPE, 1},
     {";", TOK_SEMI, 1},
     {"<", TOK_REDIR_IN, 1},
     {">", TOK_REDIR_OUT, 1},
     {NULL, TOK_NONE, 1}
 };
-
-typedef enum {
-    REDIR_IN,
-    REDIR_OUT,
-    REDIR_APPEND,
-    REDIR_HEREDOC,
-    REDIR_NONE
-} redir_type_t;
 
 typedef struct s_token {
     token_type_t type;
@@ -68,6 +79,7 @@ typedef struct s_command {
 typedef struct s_command_group {
     command_t *pipeline;
     struct s_command_group *next;
+    separator_type_t sep;
 } command_group_t;
 
 typedef enum {
@@ -93,6 +105,8 @@ void free_command_groups(command_group_t *groups);
 
 bool token_is_redir(token_t *token);
 redir_type_t get_tok_to_redir(token_type_t tok_type);
+bool token_is_separator(token_t *token);
+separator_type_t get_tok_to_sep(token_type_t tok_type);
 
 // create
 command_t *create_command(void);

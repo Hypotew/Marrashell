@@ -50,7 +50,7 @@ static int run_read_eval_loop(shell_t *shell, bool interactive)
     enum shell_status status = SHELL_CONTINUE;
 
     while (status == SHELL_CONTINUE) {
-        if (interactive && display_prompt() == FAILURE_EXIT)
+        if (interactive && display_prompt(shell->last_status) == FAILURE_EXIT)
             return FAILURE_EXIT;
         nread = getline(&shell->line, &cap, stdin);
         if (interrupted_input(shell, nread, interactive))

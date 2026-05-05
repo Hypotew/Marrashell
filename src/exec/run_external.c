@@ -153,6 +153,7 @@ int run_external(shell_t *shell, char **argv)
             return FAILURE_EXIT;
     if (validate_exec_target(argv[0], exe_path, from_path) != SUCCESS_EXIT) {
         free(exe_path);
+        shell->last_status = FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     return spawn_and_wait(shell, exe_path, argv, shell->env);

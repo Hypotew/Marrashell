@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int my_setenv(shell_t *shell, char **argv)
+int my_setenv(shell_t *shell, char **argv, bool *should_exit)
 {
     const char *invalid_name =
         "setenv: Variable name must contain alphanumeric characters.\n";
@@ -25,7 +25,7 @@ int my_setenv(shell_t *shell, char **argv)
         return FAILURE_EXIT;
     }
     if (arg_nb == 1)
-        return my_env(shell, argv);
+        return my_env(shell, argv, should_exit);
     if (!valid_env_key(argv[1])) {
         if (fprintf(stderr, "%s", invalid_name) < 0)
             return FAILURE_EXIT;

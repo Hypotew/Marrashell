@@ -10,7 +10,8 @@
 
 #include <stdio.h>
 
-int my_env(shell_t *shell, __attribute__((unused)) char **argv)
+int my_env(shell_t *shell, __attribute__((unused)) char **argv,
+    __attribute__((unused)) bool *should_exit)
 {
     for (size_t i = 0; shell->env[i]; ++i)
         if (printf("%s\n", shell->env[i]) < 0)

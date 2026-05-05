@@ -21,7 +21,8 @@ static int print_echo_arg(shell_t *shell, const char *arg)
     return SUCCESS_EXIT;
 }
 
-int echo_last_status(shell_t *shell, char **argv)
+int echo_last_status(shell_t *shell, char **argv,
+    __attribute__((unused)) bool *should_exit)
 {
     for (int i = 1; argv[i] != NULL; i++) {
         if (i > 1 && printf(" ") < 0)

@@ -123,6 +123,9 @@ static enum shell_status run_groups(shell_t *shell, command_group_t *groups)
     bool should_exit = false;
 
     for (command_group_t *grp = groups; grp != NULL; grp = grp->next) {
+        if ((grp->sep == SEP_AND && shell->last_status != 0) ||
+            (grp->sep == SEP_OR && shell->last_status == 0))
+            continue;
         if (run_pipeline(shell, grp->pipeline, &should_exit) == FAILURE_EXIT)
             return SHELL_EXIT;
         if (should_exit)

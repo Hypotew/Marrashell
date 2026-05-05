@@ -60,7 +60,7 @@ int display_marrashell(void)
     return SUCCESS_EXIT;
 }
 
-int display_prompt(void)
+int display_prompt(int last_status)
 {
     char cwd[4096];
 
@@ -68,7 +68,7 @@ int display_prompt(void)
         return FAILURE_EXIT;
     if (printf("%s ", cwd) < 0)
         return FAILURE_EXIT;
-    if (printf("%s", SUCCESS_PROMPT) < 0)
+    if (printf("%s", last_status == 0 ? SUCCESS_PROMPT : FAILURE_PROMPT) < 0)
         return FAILURE_EXIT;
     return SUCCESS_EXIT;
 }
