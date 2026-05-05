@@ -20,7 +20,7 @@ typedef struct {
 
 bool shell_init(shell_t *shell, char **envp);
 int display_marrashell(void);
-int display_prompt(void);
+int display_prompt(int last_status);
 int shell_loop(shell_t *sh);
 
 #endif // !LOOP_H_

@@ -25,7 +25,8 @@ int shell_loop(shell_t *shell)
     if (display_marrashell() == FAILURE_EXIT)
         return FAILURE_EXIT;
     while (status == SHELL_CONTINUE) {
-        if (is_interactive && display_prompt() == FAILURE_EXIT)
+        if (is_interactive && display_prompt(shell->last_status)
+            == FAILURE_EXIT)
             return FAILURE_EXIT;
         nread = getline(&shell->line, &cap, stdin);
         if (nread == -1)
