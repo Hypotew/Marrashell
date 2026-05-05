@@ -64,6 +64,9 @@ int display_prompt(int last_status)
 {
     char cwd[4096];
 
+    if (is_in_repository() == true)
+        if (display_branch() == FAILURE_EXIT)
+            return FAILURE_EXIT;
     if (getcwd(cwd, sizeof(cwd)) == NULL)
         return FAILURE_EXIT;
     if (printf("%s ", cwd) < 0)
