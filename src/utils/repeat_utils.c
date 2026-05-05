@@ -12,9 +12,11 @@
 
 static int add_digit(unsigned int *value, char digit)
 {
-    *value = *value * 10 + (digit - '0');
-    if (*value > UINT_MAX)
+    unsigned int digit_value = digit - '0';
+
+    if (*value > (UINT_MAX - digit_value) / 10)
         return FAILURE_EXIT;
+    *value = *value * 10 + digit_value;
     return SUCCESS_EXIT;
 }
 
