@@ -13,7 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int my_unsetenv(shell_t *shell, char **argv)
+int my_unsetenv(shell_t *shell, char **argv,
+    __attribute__((unused)) bool *should_exit)
 {
     size_t arg_nb = string_array_len(argv);
     int value_index = -1;

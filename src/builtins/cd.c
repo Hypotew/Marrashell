@@ -81,7 +81,8 @@ static int cd_home(shell_t *shell)
     return cd_to(shell, home_path);
 }
 
-int my_cd(shell_t *shell, char **argv)
+int my_cd(shell_t *shell, char **argv,
+    __attribute__((unused)) bool *should_exit)
 {
     size_t arg_nb = string_array_len(argv);
     char *oldpwd;
