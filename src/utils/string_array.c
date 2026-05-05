@@ -46,28 +46,31 @@ char **dup_string_array(char **array)
     return copy;
 }
 
-static size_t global_len_array(size_t space_to_allocate, char **array,
-    size_t start, size_t nb_words)
+static size_t global_len_array(char **array, size_t start, size_t nb_words)
 {
+    size_t len = 1;
+
     for (size_t i = start; i < nb_words; i++) {
-        space_to_allocate += strlen(array[i]);
+        len += strlen(array[i]);
         if (i + 1 < nb_words)
-            space_to_allocate++;
+            len++;
     }
-    return space_to_allocate;
+    return len;
 }
 
 char *array_to_string(char **array, size_t start)
 {
     char *str = NULL;
-    size_t nb_words = string_array_len(array);
-    size_t space_to_allocate = 1;
+    size_t nb_words = 0;
+    size_t space_to_allocate = 0;
 
-    if (array == NULL || start >= nb_words)
+    if (array == NULL)
         return NULL;
-    space_to_allocate += global_len_array(space_to_allocate, array,
-        start, nb_words);
-    str = malloc(sizeof(char) * (space_to_allocate));
+    nb_words = string_array_len(array);
+    if (start >= nb_words)
+        return NULL;
+    space_to_allocate = global_len_array(array, start, nb_words);
+    str = malloc(sizeof(char) * space_to_allocate);
     if (!str)
         return NULL;
     str[0] = '\0';
