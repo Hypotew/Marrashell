@@ -6,7 +6,6 @@
 */
 
 #include <stdbool.h>
-#include <stdlib.h>
 
 #include "parser.h"
 
@@ -49,7 +48,7 @@ static parse_status_t handle_pipe(parse_ctx_t *ctx)
     return PARSE_OK;
 }
 
-static parse_status_t handle_semi(parse_ctx_t *ctx)
+static parse_status_t handle_separator(token_t *token, parse_ctx_t *ctx)
 {
     command_group_t *new_grp = NULL;
     command_t *new_cmd = NULL;
@@ -67,6 +66,7 @@ static parse_status_t handle_semi(parse_ctx_t *ctx)
     new_cmd = create_command();
     if (new_grp == NULL || new_cmd == NULL)
         return PARSE_ERR_FATAL;
+    new_grp->sep = get_tok_to_sep(token->type);
     ctx->current_grp = new_grp;
     ctx->current_cmd = new_cmd;
     return PARSE_OK;
@@ -80,8 +80,8 @@ static parse_status_t handle_token(token_t *token, parse_ctx_t *ctx)
         return handle_redir(token, ctx);
     if (token->type == TOK_PIPE)
         return handle_pipe(ctx);
-    if (token->type == TOK_SEMI)
-        return handle_semi(ctx);
+    if (token_is_separator(token))
+        return handle_separator(token, ctx);
     return PARSE_OK;
 }
 

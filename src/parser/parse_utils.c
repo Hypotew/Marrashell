@@ -29,3 +29,21 @@ redir_type_t get_tok_to_redir(token_type_t tok_type)
         return REDIR_HEREDOC;
     return REDIR_NONE;
 }
+
+bool token_is_separator(token_t *token)
+{
+    token_type_t type = token->type;
+
+    return (type == TOK_SEMI || type == TOK_AND || type == TOK_OR);
+}
+
+separator_type_t get_tok_to_sep(token_type_t tok_type)
+{
+    if (tok_type == TOK_SEMI)
+        return SEP_SEMI;
+    if (tok_type == TOK_AND)
+        return SEP_AND;
+    if (tok_type == TOK_OR)
+        return SEP_OR;
+    return SEP_NONE;
+}
