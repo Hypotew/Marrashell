@@ -59,7 +59,8 @@ static int print_all_history(history_t *history)
     return SUCCESS_EXIT;
 }
 
-int my_history(shell_t *shell, char **argv)
+int my_history(shell_t *shell, char **argv,
+    __attribute__((unused)) bool *should_exit)
 {
     history_t history = {0};
 

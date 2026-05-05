@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int my_setenv(shell_t *shell, char **argv)
+int my_setenv(shell_t *shell, char **argv, bool *should_exit)
 {
     size_t arg_nb = string_array_len(argv);
 
@@ -22,7 +22,7 @@ int my_setenv(shell_t *shell, char **argv)
         return FAILURE_EXIT;
     }
     if (arg_nb == 1) {
-        my_env(shell, argv);
+        my_env(shell, argv, should_exit);
         return SUCCESS_EXIT;
     }
     if (!valid_env_key(argv[1])) {

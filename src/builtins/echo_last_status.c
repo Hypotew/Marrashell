@@ -11,7 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 
-int echo_last_status(shell_t *shell, char **argv)
+int echo_last_status(shell_t *shell, char **argv,
+    __attribute__((unused)) bool *should_exit)
 {
     for (int i = 1; argv[i] != NULL; i++) {
         if (i > 1)

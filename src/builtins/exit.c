@@ -9,7 +9,8 @@
 #include "mysh.h"
 
 int shell_exit(__attribute__((unused)) shell_t *shell,
-    __attribute__((unused)) char **argv)
+    __attribute__((unused)) char **argv, bool *should_exit)
 {
+    *should_exit = true;
     return SUCCESS_EXIT;
 }

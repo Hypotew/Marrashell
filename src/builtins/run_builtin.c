@@ -21,7 +21,7 @@ static const builtin_entry_t g_builtins[] = {
     {"env", my_env},
     {"echo", echo_last_status},
     {"history", my_history},
-    {"repeat", my_repeat}
+    {"repeat", my_repeat},
     {NULL, NULL},
 };
 
@@ -43,9 +43,7 @@ bool run_builtin(shell_t *shell, char **argv, bool *should_exit)
     for (size_t i = 0; g_builtins[i].name != NULL; ++i) {
         if (strcmp(argv[0], g_builtins[i].name) != 0)
             continue;
-        if (strcmp(argv[0], "exit") == 0)
-            *should_exit = true;
-        shell->last_status = g_builtins[i].fn(shell, argv);
+        shell->last_status = g_builtins[i].fn(shell, argv, should_exit);
         return true;
     }
     return true;
