@@ -27,7 +27,7 @@ static void run_single(shell_t *shell, command_t *command,
         run_external(shell, command->argv);
 }
 
-static void handle_chile_piped(shell_t *shell, command_t *command,
+static void handle_child_piped(shell_t *shell, command_t *command,
     bool *should_exit, pipe_ctx_t *ctx)
 {
     if (ctx->prev_read != -1)
@@ -65,7 +65,7 @@ static bool spawn_piped(shell_t *shell, command_t *current,
         return false;
     }
     if (pid == 0)
-        handle_chile_piped(shell, current, should_exit, ctx);
+        handle_child_piped(shell, current, should_exit, ctx);
     if (ctx->fds[1] != -1)
         close(ctx->fds[1]);
     if (ctx->prev_read != -1)
