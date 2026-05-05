@@ -22,6 +22,14 @@ static bool line_matches_target(const char *line, const char *target)
     return strstr(content + 2, target) != NULL;
 }
 
+static int close_and_return(history_t *history, char *line, int status)
+{
+    free(line);
+    fclose(history->fd);
+    history->fd = NULL;
+    return status;
+}
+
 static int print_history_after_target(history_t *history, char *target)
 {
     char *line = NULL;
@@ -34,13 +42,10 @@ static int print_history_after_target(history_t *history, char *target)
     while (getline(&line, &len, history->fd) != -1) {
         if (!target_found && line_matches_target(line, target))
             target_found = true;
-        if (target_found)
-            printf("%s", line);
+        if (target_found && printf("%s", line) < 0)
+            return close_and_return(history, line, FAILURE_EXIT);
     }
-    free(line);
-    fclose(history->fd);
-    history->fd = NULL;
-    return SUCCESS_EXIT;
+    return close_and_return(history, line, SUCCESS_EXIT);
 }
 
 static int print_all_history(history_t *history)
@@ -52,11 +57,9 @@ static int print_all_history(history_t *history)
     if (!history->fd)
         return FAILURE_EXIT;
     while (getline(&line, &len, history->fd) != -1)
-        printf("%s", line);
-    free(line);
-    fclose(history->fd);
-    history->fd = NULL;
-    return SUCCESS_EXIT;
+        if (printf("%s", line) < 0)
+            return close_and_return(history, line, FAILURE_EXIT);
+    return close_and_return(history, line, SUCCESS_EXIT);
 }
 
 int history(shell_t *shell, char **argv)

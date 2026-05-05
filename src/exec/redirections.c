@@ -35,12 +35,19 @@ static bool apply_redir(redir_t *redir)
     int fd = open_redir(redir);
 
     if (fd < 0) {
-        fprintf(stderr, "%s", redir->target);
-        fprintf(stderr, "%s", ": No such file or directory.\n");
+        if (fprintf(stderr, "%s", redir->target) < 0)
+            return false;
+        if (fprintf(stderr, "%s", ": No such file or directory.\n") < 0)
+            return false;
         return false;
     }
-    dup2(fd, get_redir_fd(redir->type));
-    close(fd);
+    if (dup2(fd, get_redir_fd(redir->type)) < 0) {
+        close(fd);
+        return false;
+    }
+    if (close(fd) < 0) {
+        return false;
+    }
     return true;
 }
 

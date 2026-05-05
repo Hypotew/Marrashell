@@ -11,6 +11,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <errno.h>
 
 int main(__attribute__((unused)) int argc,
     __attribute__((unused)) char **argv,
@@ -20,7 +22,8 @@ int main(__attribute__((unused)) int argc,
     int exit_code = SUCCESS_EXIT;
 
     if (!shell_init(&shell, envp)) {
-        perror("shell init");
+        if (fprintf(stderr, "shell init: %s\n", strerror(errno)) < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     exit_code = shell_loop(&shell);

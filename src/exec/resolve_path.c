@@ -6,8 +6,8 @@
 */
 
 #include "exec.h"
-#include "utils.h"
 #include "mysh.h"
+#include "utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,19 +15,25 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-static void print_command_not_found(const char *command)
+static int print_command_not_found(const char *command)
 {
-    fprintf(stderr, "%s: Command not found.\n", command);
+    if (fprintf(stderr, "%s: Command not found.\n", command) < 0)
+        return FAILURE_EXIT;
+    return SUCCESS_EXIT;
 }
 
-static void print_cmd_error(const char *command, const char *message)
+static int print_cmd_error(const char *command, const char *message)
 {
-    fprintf(stderr, "%s: %s\n", command, message);
+    if (fprintf(stderr, "%s: %s\n", command, message) < 0)
+        return FAILURE_EXIT;
+    return SUCCESS_EXIT;
 }
 
-void print_path_not_set(void)
+int print_path_not_set(void)
 {
-    fprintf(stderr, "mysh: PATH not set\n");
+    if (fprintf(stderr, "mysh: PATH not set\n") < 0)
+        return FAILURE_EXIT;
+    return SUCCESS_EXIT;
 }
 
 bool contains_slash(const char *str)
@@ -98,9 +104,12 @@ char *build_exec_path(char **env, char *exe)
 static int handle_missing_target(char *command, bool from_path)
 {
     if (from_path)
-        print_command_not_found(command);
-    else
-        print_cmd_error(command, "No such file or directory");
+        if (print_command_not_found(command) == FAILURE_EXIT)
+            return FAILURE_EXIT;
+    if (!from_path)
+        if (print_cmd_error(command, "No such file or directory")
+            == FAILURE_EXIT)
+            return FAILURE_EXIT;
     return FAILURE_EXIT;
 }
 
@@ -110,17 +119,14 @@ int validate_exec_target(char *command, char *exe_path, bool from_path)
 
     if (exe_path == NULL)
         return handle_missing_target(command, from_path);
-    if (stat(exe_path, &st) == -1) {
-        print_cmd_error(command, "No such file or directory");
-        return FAILURE_EXIT;
-    }
-    if (S_ISDIR(st.st_mode)) {
-        print_cmd_error(command, "Permission denied.");
-        return FAILURE_EXIT;
-    }
-    if (access(exe_path, X_OK) == -1) {
-        print_cmd_error(command, "Permission denied.");
-        return FAILURE_EXIT;
-    }
+    if (stat(exe_path, &st) == -1)
+        return (print_cmd_error(command, "No such file or directory"),
+            FAILURE_EXIT);
+    if (S_ISDIR(st.st_mode))
+        return (print_cmd_error(command, "Permission denied."),
+            FAILURE_EXIT);
+    if (access(exe_path, X_OK) == -1)
+        return (print_cmd_error(command, "Permission denied."),
+            FAILURE_EXIT);
     return SUCCESS_EXIT;
 }

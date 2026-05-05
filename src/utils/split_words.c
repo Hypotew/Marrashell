@@ -56,6 +56,8 @@ char **my_split_words(char const *str, char const *delimiters)
         free(result);
         return NULL;
     }
+    for (size_t i = 0; i <= word_count; ++i)
+        result[i] = NULL;
     result = fill_words(copy, delimiters, result);
     free(copy);
     return result;

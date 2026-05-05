@@ -12,8 +12,8 @@
 
 int my_env(shell_t *shell, __attribute__((unused)) char **argv)
 {
-    for (size_t i = 0; shell->env[i]; ++i) {
-        printf("%s\n", shell->env[i]);
-    }
+    for (size_t i = 0; shell->env[i]; ++i)
+        if (printf("%s\n", shell->env[i]) < 0)
+            return FAILURE_EXIT;
     return SUCCESS_EXIT;
 }

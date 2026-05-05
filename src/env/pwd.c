@@ -70,6 +70,15 @@ static int append_env_entry(shell_t *shell, char *entry)
     return SUCCESS_EXIT;
 }
 
+static int append_entry_or_free(shell_t *shell, char *entry)
+{
+    if (append_env_entry(shell, entry) == FAILURE_EXIT) {
+        free(entry);
+        return FAILURE_EXIT;
+    }
+    return SUCCESS_EXIT;
+}
+
 bool valid_env_key(const char *key)
 {
     char c = '\0';
@@ -109,5 +118,5 @@ int env_set_value(shell_t *shell, const char *key, const char *value)
             return SUCCESS_EXIT;
         }
     }
-    return append_env_entry(shell, entry);
+    return append_entry_or_free(shell, entry);
 }
