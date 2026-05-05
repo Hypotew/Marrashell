@@ -36,7 +36,7 @@ int my_setenv(shell_t *shell, char **argv);
 int my_unsetenv(shell_t *shell, char **argv);
 int my_env(shell_t *shell, char **argv);
 int echo_last_status(shell_t *shell, char **argv);
-int history(shell_t *shell, char **argv);
+int my_history(shell_t *shell, char **argv);
 int add_to_history(shell_t *shell);
 
 #endif // !BUILTINS_H_

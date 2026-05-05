@@ -13,6 +13,8 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/env.c \
 	   $(SRCS_DIR)/builtins/echo_last_status.c \
 	   $(SRCS_DIR)/builtins/history.c \
+	   $(SRCS_DIR)/utils/history_utils.c \
+	   $(SRCS_DIR)/builtins/repeat.c \
 	   $(SRCS_DIR)/exec/run_command.c \
 	   $(SRCS_DIR)/exec/resolve_path.c \
 	   $(SRCS_DIR)/exec/run_external.c \
@@ -28,8 +30,7 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/parser/parse_append.c \
 	   $(SRCS_DIR)/parser/parse_free.c \
 	   $(SRCS_DIR)/utils/string_array.c \
-	   $(SRCS_DIR)/utils/split_words.c \
-	   $(SRCS_DIR)/utils/history_utils.c
+	   $(SRCS_DIR)/utils/split_words.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj
