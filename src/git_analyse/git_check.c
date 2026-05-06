@@ -19,6 +19,7 @@ bool is_in_repository(void)
 
     if (!fd)
         return false;
+    fclose(fd);
     return true;
 }
 
