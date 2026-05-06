@@ -40,7 +40,7 @@ bool is_a_dir(const char *target)
     if (!S_ISDIR(st.st_mode)) {
         if (fprintf(stderr, "%s", target) < 0)
             return false;
-        if (fprintf(stderr, "%s", ": Not a directory."))
+        if (fprintf(stderr, "%s", ": Not a directory.") < 0)
             return false;
         return false;
     }
