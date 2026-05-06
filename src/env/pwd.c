@@ -74,10 +74,8 @@ static int append_env_entry(shell_t *shell, char *entry)
 
 static int append_entry_or_free(shell_t *shell, char *entry)
 {
-    if (append_env_entry(shell, entry) == FAILURE_EXIT) {
-        free(entry);
+    if (append_env_entry(shell, entry) == FAILURE_EXIT)
         return FAILURE_EXIT;
-    }
     return SUCCESS_EXIT;
 }
 
