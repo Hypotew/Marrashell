@@ -34,7 +34,10 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/utils/split_words.c \
 	   $(SRCS_DIR)/shell/readline.c \
 	   $(SRCS_DIR)/shell/readline_hist.c \
-	   $(SRCS_DIR)/git_analyse/git_check.c
+	   $(SRCS_DIR)/git_analyse/git_check.c \
+	   $(SRCS_DIR)/expand/expand.c \
+	   $(SRCS_DIR)/expand/history_expand.c \
+	   $(SRCS_DIR)/expand/history_lookup.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj
