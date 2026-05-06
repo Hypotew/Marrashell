@@ -31,7 +31,8 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/parser/parse_append.c \
 	   $(SRCS_DIR)/parser/parse_free.c \
 	   $(SRCS_DIR)/utils/string_array.c \
-	   $(SRCS_DIR)/utils/split_words.c
+	   $(SRCS_DIR)/utils/split_words.c \
+	   $(SRCS_DIR)/git_analyse/git_check.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj
