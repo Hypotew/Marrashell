@@ -96,6 +96,12 @@ static bool should_skip_history(shell_t *shell, history_t *history)
     return false;
 }
 
+static int free_history_fields(history_t *history, int status)
+{
+    free(history->last_cmd);
+    return status;
+}
+
 int collect_history_infos(history_t *history)
 {
     if (get_history_size(history) == FAILURE_EXIT)
@@ -113,18 +119,16 @@ int add_to_history(shell_t *shell)
 
     if (collect_history_infos(&history) == FAILURE_EXIT)
         return FAILURE_EXIT;
-    if (should_skip_history(shell, &history)) {
-        free(history.last_cmd);
-        return SUCCESS_EXIT;
-    }
+    if (should_skip_history(shell, &history))
+        return free_history_fields(&history, SUCCESS_EXIT);
     history.fd = fopen(HISTORY_FILE, "a");
-    if (!history.fd) {
-        free(history.last_cmd);
-        return FAILURE_EXIT;
-    }
+    if (!history.fd)
+        return free_history_fields(&history, FAILURE_EXIT);
     history.nb_lines++;
-    fprintf(history.fd, "%llu  %s", history.nb_lines, shell->line);
+    if (fprintf(history.fd, "%llu  %s", history.nb_lines, shell->line) < 0) {
+        close_history_file(&history);
+        return free_history_fields(&history, FAILURE_EXIT);
+    }
     close_history_file(&history);
-    free(history.last_cmd);
-    return SUCCESS_EXIT;
+    return free_history_fields(&history, SUCCESS_EXIT);
 }

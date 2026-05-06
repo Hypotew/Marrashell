@@ -35,6 +35,8 @@ char **dup_string_array(char **array)
 
     if (copy == NULL)
         return NULL;
+    for (size_t i = 0; i <= len; ++i)
+        copy[i] = NULL;
     for (size_t i = 0; i < len; ++i) {
         copy[i] = strdup(array[i]);
         if (copy[i] == NULL) {
@@ -42,7 +44,6 @@ char **dup_string_array(char **array)
             return NULL;
         }
     }
-    copy[len] = NULL;
     return copy;
 }
 

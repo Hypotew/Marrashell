@@ -16,6 +16,7 @@ void free_tokens(token_t *tokens)
 
     for (token_t *current = tokens; current != NULL; current = next) {
         next = current->next;
+        free(current->value);
         free(current);
     }
 }

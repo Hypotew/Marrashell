@@ -38,8 +38,10 @@ bool is_a_dir(const char *target)
     if (stat(target, &st) == -1)
         return false;
     if (!S_ISDIR(st.st_mode)) {
-        fprintf(stderr, "%s", target);
-        fprintf(stderr, "%s", ": Not a directory.");
+        if (fprintf(stderr, "%s", target) < 0)
+            return false;
+        if (fprintf(stderr, "%s", ": Not a directory.") < 0)
+            return false;
         return false;
     }
     return true;
@@ -75,7 +77,8 @@ static int cd_home(shell_t *shell)
     char *home_path = env_get_value(shell->env, "HOME=");
 
     if (home_path == NULL || home_path[0] == '\0') {
-        fprintf(stderr, "cd: HOME not set\n");
+        if (fprintf(stderr, "cd: HOME not set\n") < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     return cd_to(shell, home_path);
@@ -88,7 +91,8 @@ int my_cd(shell_t *shell, char **argv,
     char *oldpwd;
 
     if (arg_nb > 2) {
-        fprintf(stderr, "cd: Too many arguments\n");
+        if (fprintf(stderr, "cd: Too many arguments\n") < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     if (arg_nb == 1)
