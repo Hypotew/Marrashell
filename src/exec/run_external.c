@@ -119,8 +119,6 @@ static int spawn_and_wait(shell_t *shell, char *exe_path,
     }
     shell->last_status = handle_child_status(code);
     free(exe_path);
-    if (shell->last_status == FAILURE_EXIT)
-        return FAILURE_EXIT;
     return SUCCESS_EXIT;
 }
 
