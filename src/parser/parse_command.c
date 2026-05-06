@@ -6,6 +6,7 @@
 */
 
 #include <stdbool.h>
+#include <stdlib.h>
 
 #include "parser.h"
 
@@ -68,23 +69,10 @@ static parse_status_t create_next_group(parse_ctx_t *ctx)
     return PARSE_OK;
 }
 
-static parse_status_t create_next_group(parse_ctx_t *ctx)
-{
-    command_group_t *new_grp = create_group();
-    command_t *new_cmd = create_command();
-
-    if (new_grp == NULL || new_cmd == NULL) {
-        free(new_grp);
-        free(new_cmd);
-        return PARSE_ERR_FATAL;
-    }
-    ctx->current_grp = new_grp;
-    ctx->current_cmd = new_cmd;
-    return PARSE_OK;
-}
-
 static parse_status_t handle_separator(token_t *token, parse_ctx_t *ctx)
 {
+    parse_status_t status;
+
     if (ctx->pending_redir != REDIR_NONE)
         return PARSE_ERR_SYNTAX;
     if (ctx->current_cmd->argv == NULL && ctx->current_grp->pipeline == NULL) {
@@ -94,14 +82,11 @@ static parse_status_t handle_separator(token_t *token, parse_ctx_t *ctx)
     }
     append_cmd_to_grp_pipeline(ctx->current_cmd, ctx->current_grp);
     append_grp_to_grp_list(ctx->current_grp, ctx->groups);
-    new_grp = create_group();
-    new_cmd = create_command();
-    if (new_grp == NULL || new_cmd == NULL)
-        return PARSE_ERR_FATAL;
-    new_grp->sep = get_tok_to_sep(token->type);
-    ctx->current_grp = new_grp;
-    ctx->current_cmd = new_cmd;
-    return PARSE_OK;
+    status = create_next_group(ctx);
+    if (status != PARSE_OK)
+        return status;
+    ctx->current_grp->sep = get_tok_to_sep(token->type);
+    return status;
 }
 
 static parse_status_t handle_token(token_t *token, parse_ctx_t *ctx)
