@@ -55,7 +55,8 @@ static int expand_braced(shell_t *shell, const char *in, int pos, buf_t *b)
     char *val = NULL;
 
     if (!end) {
-        buf_append(b, "${");
+        if (buf_append(b, "${") == FAILURE_EXIT)
+            return -1;
         return 2;
     }
     len = (size_t)(end - (in + pos + 2));
@@ -65,7 +66,8 @@ static int expand_braced(shell_t *shell, const char *in, int pos, buf_t *b)
     name[len] = '\0';
     val = lookup_var(shell, name);
     if (val)
-        buf_append(b, val);
+        if (buf_append(b, val) == FAILURE_EXIT)
+            return -1;
     return (int)(len + 3);
 }
 
@@ -75,8 +77,9 @@ static int expand_status(shell_t *shell, buf_t *b)
     int len = snprintf(num, sizeof(num), "%d", shell->last_status);
 
     if (len < 0 || (size_t)len >= sizeof(num))
-        return 2;
-    buf_append(b, num);
+        return -1;
+    if (buf_append(b, num) == FAILURE_EXIT)
+        return -1;
     return 2;
 }
 
@@ -87,12 +90,14 @@ static int expand_simple(shell_t *shell, const char *in, int pos, buf_t *b)
     char *val = NULL;
 
     if (consumed == 0) {
-        buf_append(b, "$");
+        if (buf_append(b, "$") == FAILURE_EXIT)
+            return -1;
         return 1;
     }
     val = lookup_var(shell, name);
     if (val)
-        buf_append(b, val);
+        if (buf_append(b, val) == FAILURE_EXIT)
+            return -1;
     return 1 + consumed;
 }
 
@@ -105,20 +110,37 @@ static int expand_dollar(shell_t *shell, const char *in, int pos, buf_t *b)
     return expand_simple(shell, in, pos, b);
 }
 
+static int expand_var_char(shell_t *shell, const char *input, int *i,
+    buf_t *b, bool *in_squote)
+{
+    int consumed = 0;
+
+    if (input[*i] == '\'')
+        *in_squote = !(*in_squote);
+    if (input[*i] == '$' && !(*in_squote)) {
+        consumed = expand_dollar(shell, input, *i, b);
+        if (consumed == -1)
+            return FAILURE_EXIT;
+        *i += consumed;
+        return SUCCESS_EXIT;
+    }
+    if (buf_append(b, (char[]){input[*i], '\0'}) == FAILURE_EXIT)
+        return FAILURE_EXIT;
+    (*i)++;
+    return SUCCESS_EXIT;
+}
+
 char *var_expand(shell_t *shell, const char *input)
 {
     buf_t b = {NULL, 0, 0};
     bool in_squote = false;
 
     for (int i = 0; input[i] != '\0';) {
-        if (input[i] == '\'')
-            in_squote = !in_squote;
-        if (input[i] == '$' && !in_squote) {
-            i += expand_dollar(shell, input, i, &b);
-            continue;
+        if (expand_var_char(shell, input, &i, &b, &in_squote)
+            == FAILURE_EXIT) {
+            free(b.data);
+            return NULL;
         }
-        buf_append(&b, (char[]){input[i], '\0'});
-        i++;
     }
     return b.data ? b.data : strdup("");
 }
