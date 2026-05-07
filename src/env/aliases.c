@@ -92,14 +92,22 @@ int alias_unset_all(shell_t *shell)
     return SUCCESS_EXIT;
 }
 
-void alias_print_all(char **aliases)
+static int print_alias_entry(char *alias)
 {
-    char *eq = NULL;
+    char *eq = strchr(alias, '=');
 
+    if (eq == NULL)
+        return SUCCESS_EXIT;
+    if (printf("%.*s\t(%s)\n", (int)(eq - alias), alias, eq + 1) < 0)
+        return FAILURE_EXIT;
+    return SUCCESS_EXIT;
+}
+
+int alias_print_all(char **aliases)
+{
     for (size_t i = 0; aliases[i] != NULL; i++) {
-        eq = strchr(aliases[i], '=');
-        if (eq)
-            printf("%.*s\t(%s)\n", (int)(eq - aliases[i]), aliases[i],
-                eq + 1);
+        if (print_alias_entry(aliases[i]) == FAILURE_EXIT)
+            return FAILURE_EXIT;
     }
+    return SUCCESS_EXIT;
 }

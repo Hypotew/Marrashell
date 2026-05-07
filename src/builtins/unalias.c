@@ -16,7 +16,8 @@ int my_unalias(shell_t *shell, char **argv,
     __attribute__((unused)) bool *should_exit)
 {
     if (argv[1] == NULL) {
-        fprintf(stderr, "unalias: Too few arguments.\n");
+        if (fprintf(stderr, "unalias: Too few arguments.\n") < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     for (int i = 1; argv[i] != NULL; i++) {

@@ -79,8 +79,10 @@ int local_unset(shell_t *shell, const char *key)
     return SUCCESS_EXIT;
 }
 
-void local_print_all(char **locals)
+int local_print_all(char **locals)
 {
     for (size_t i = 0; locals[i] != NULL; i++)
-        printf("%s\n", locals[i]);
+        if (printf("%s\n", locals[i]) < 0)
+            return FAILURE_EXIT;
+    return SUCCESS_EXIT;
 }

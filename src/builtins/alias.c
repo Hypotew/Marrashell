@@ -19,7 +19,8 @@ static int print_one_alias(shell_t *shell, const char *name)
     char *val = alias_get_value(shell->aliases, name);
 
     if (val)
-        printf("%s\t(%s)\n", name, val);
+        if (printf("%s\t(%s)\n", name, val) < 0)
+            return FAILURE_EXIT;
     return SUCCESS_EXIT;
 }
 
@@ -43,8 +44,7 @@ int my_alias(shell_t *shell, char **argv,
     size_t argc = string_array_len(argv);
 
     if (argc == 1) {
-        alias_print_all(shell->aliases);
-        return SUCCESS_EXIT;
+        return alias_print_all(shell->aliases);
     }
     if (argc == 2)
         return print_one_alias(shell, argv[1]);
