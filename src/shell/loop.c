@@ -11,45 +11,15 @@
 #include "builtins.h"
 #include "readline.h"
 
-#include <errno.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <signal.h>
-
-static void handle_sigint(__attribute__((unused)) int signum)
-{
-    if (write(STDOUT_FILENO, "\n", 1) < 0)
-        return;
-}
-
-static int setup_interactive_signals(void)
-{
-    struct sigaction sa = {0};
-
-    sa.sa_handler = handle_sigint;
-    if (sigemptyset(&sa.sa_mask) < 0)
-        return FAILURE_EXIT;
-    if (sigaction(SIGINT, &sa, NULL) < 0)
-        return FAILURE_EXIT;
-    return SUCCESS_EXIT;
-}
-
-static bool interrupted_input(shell_t *shell, ssize_t nread)
-{
-    if (nread != -1 || errno != EINTR)
-        return false;
-    clearerr(stdin);
-    shell->last_status = 130;
-    return true;
-}
 
 static bool read_input(shell_t *shell, bool is_interactive)
 {
     size_t cap = 0;
-    ssize_t nread;
 
     if (is_interactive) {
         free(shell->line);
@@ -58,10 +28,7 @@ static bool read_input(shell_t *shell, bool is_interactive)
     }
     free(shell->line);
     shell->line = NULL;
-    nread = getline(&shell->line, &cap, stdin);
-    if (interrupted_input(shell, nread))
-        return true;
-    return nread != -1;
+    return getline(&shell->line, &cap, stdin) != -1;
 }
 
 int shell_loop(shell_t *shell)
@@ -70,8 +37,6 @@ int shell_loop(shell_t *shell)
     bool is_interactive = isatty(STDIN_FILENO);
 
     if (display_marrashell() == FAILURE_EXIT)
-        return FAILURE_EXIT;
-    if (is_interactive && setup_interactive_signals() == FAILURE_EXIT)
         return FAILURE_EXIT;
     while (status == SHELL_CONTINUE) {
         if (!read_input(shell, is_interactive))
