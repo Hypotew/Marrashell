@@ -22,5 +22,6 @@ bool shell_init(shell_t *shell, char **envp);
 int display_marrashell(void);
 int display_prompt(int last_status);
 int shell_loop(shell_t *sh);
+char *read_line(shell_t *shell);
 
 #endif // !LOOP_H_
