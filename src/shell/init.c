@@ -105,3 +105,17 @@ bool shell_init(shell_t *shell, char **envp)
     shell->last_pid = -1;
     return true;
 }
+
+void shell_destroy(shell_t *shell)
+{
+    if (shell == NULL)
+        return;
+    free_string_array(shell->env);
+    free_string_array(shell->locals);
+    free_string_array(shell->aliases);
+    free(shell->line);
+    shell->env = NULL;
+    shell->locals = NULL;
+    shell->aliases = NULL;
+    shell->line = NULL;
+}

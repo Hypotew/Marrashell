@@ -21,6 +21,7 @@ typedef struct {
 } shell_t;
 
 bool shell_init(shell_t *shell, char **envp);
+void shell_destroy(shell_t *shell);
 int display_marrashell(void);
 int display_branch(void);
 int display_prompt(int last_status);
