@@ -24,6 +24,8 @@ char *history_expand(const char *input);
 char *var_expand(shell_t *shell, const char *input);
 char *alias_expand(shell_t *shell, const char *input);
 
+char **glob_expand_argv(char **argv);
+
 char *history_get_last(void);
 char *history_get_by_number(unsigned long long n);
 char *history_get_by_offset(unsigned long long offset);
