@@ -13,6 +13,7 @@
     #include "shell.h"
 
     #define ARROW_UP '\033'
+    #define MAX_HIST 1000
 
 typedef struct {
     char *buf;

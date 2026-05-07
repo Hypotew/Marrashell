@@ -6,7 +6,6 @@
 */
 #include "readline.h"
 #include "builtins.h"
-#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,26 +24,13 @@ char *parse_hist_entry(char *line)
     return strdup(content);
 }
 
-static int count_lines(FILE *f)
-{
-    char *line = NULL;
-    size_t n = 0;
-    int count = 0;
-
-    while (getline(&line, &n, f) != -1)
-        count++;
-    free(line);
-    rewind(f);
-    return count;
-}
-
-static void fill_entries(FILE *f, char **entries, int *count, int total)
+static void fill_entries(FILE *f, char **entries, int *count)
 {
     char *line = NULL;
     size_t n = 0;
     char *content;
 
-    while (getline(&line, &n, f) != -1 && *count < total) {
+    while (getline(&line, &n, f) != -1 && *count < MAX_HIST) {
         content = parse_hist_entry(line);
         if (content) {
             entries[*count] = content;
@@ -57,20 +43,16 @@ static void fill_entries(FILE *f, char **entries, int *count, int total)
 char **load_history(int *count)
 {
     FILE *f = fopen(HISTORY_FILE, "r");
-    int total;
-    char **entries;
+    char **entries = malloc(sizeof(char *) * MAX_HIST);
 
     *count = 0;
-    if (!f)
-        return NULL;
-    total = count_lines(f);
-    errno = 0;
-    entries = malloc(sizeof(char *) * (total + 1));
-    if (!entries) {
-        fclose(f);
+    if (!f || !entries) {
+        free(entries);
+        if (f)
+            fclose(f);
         return NULL;
     }
-    fill_entries(f, entries, count, total);
+    fill_entries(f, entries, count);
     fclose(f);
     return entries;
 }
