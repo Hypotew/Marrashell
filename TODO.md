@@ -6,7 +6,7 @@
 - [ ] Inhibitors (quotes) — single/double quote handling in tokenizer
 
 ## Medium
-- [ ] Variable expansion — `$VAR`, `$?`, `set`/`unset` builtins, local var storage
+- [x] Variable expansion — `$VAR`, `$?`, `set`/`unset` builtins, local var storage
 - [ ] Aliases — `alias`/`unalias` builtins, expansion before tokenizing
 - [ ] Special variables — `$term`, `$cwd`, `$precmd`, `$cwdcmd`, `$ignoreof`
 - [ ] Globbing — `*`, `?`, `[`, `]` via `glob()` from libc

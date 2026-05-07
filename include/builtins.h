@@ -35,9 +35,11 @@ int my_cd(shell_t *shell, char **argv, bool *should_exit);
 int my_setenv(shell_t *shell, char **argv, bool *should_exit);
 int my_unsetenv(shell_t *shell, char **argv, bool *should_exit);
 int my_env(shell_t *shell, char **argv, bool *should_exit);
-int echo_last_status(shell_t *shell, char **argv, bool *should_exit);
+int my_echo(shell_t *shell, char **argv, bool *should_exit);
 int my_history(shell_t *shell, char **argv, bool *should_exit);
 int my_repeat(shell_t *shell, char **argv, bool *should_exit);
+int my_set(shell_t *shell, char **argv, bool *should_exit);
+int my_unset(shell_t *shell, char **argv, bool *should_exit);
 
 // builtin utils prototypes
 int add_to_history(shell_t *shell);

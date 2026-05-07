@@ -10,6 +10,7 @@
 #include "utils.h"
 
 #include <stdbool.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -80,6 +81,9 @@ bool shell_init(shell_t *shell, char **envp)
 {
     shell->env = dup_string_array(envp);
     if (shell->env == NULL)
+        return false;
+    shell->locals = calloc(1, sizeof(char *));
+    if (shell->locals == NULL)
         return false;
     shell->last_status = SUCCESS_EXIT;
     shell->line = NULL;

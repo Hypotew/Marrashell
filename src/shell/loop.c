@@ -66,7 +66,7 @@ static bool read_input(shell_t *shell, bool is_interactive)
 
 static enum shell_status process_line(shell_t *shell)
 {
-    char *expanded = expand_line(shell->line);
+    char *expanded = expand_line(shell);
     enum shell_status status;
     char *save;
 

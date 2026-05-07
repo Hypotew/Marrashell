@@ -7,7 +7,16 @@
 
 #include "expand.h"
 
-char *expand_line(const char *input)
+#include <stdlib.h>
+
+char *expand_line(shell_t *shell)
 {
-    return history_expand(input);
+    char *hist = history_expand(shell->line);
+    char *result = NULL;
+
+    if (!hist)
+        return NULL;
+    result = var_expand(shell, hist);
+    free(hist);
+    return result;
 }

@@ -13,6 +13,7 @@
 
 typedef struct {
     char **env;
+    char **locals;
     int last_status;
     char *line;
     pid_t last_pid;

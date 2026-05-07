@@ -32,7 +32,7 @@ static int read_number(const char *s, unsigned long long *out)
     return i;
 }
 
-static void buf_append(buf_t *b, const char *s)
+void buf_append(buf_t *b, const char *s)
 {
     size_t slen = strlen(s);
 
