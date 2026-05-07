@@ -55,6 +55,8 @@ static bool read_input(shell_t *shell, bool is_interactive)
         shell->line = read_line(shell);
         return shell->line != NULL;
     }
+    free(shell->line);
+    shell->line = NULL;
     nread = getline(&shell->line, &cap, stdin);
     if (interrupted_input(shell, nread))
         return true;

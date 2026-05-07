@@ -6,6 +6,7 @@
 */
 #include "readline.h"
 #include "builtins.h"
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,6 +64,7 @@ char **load_history(int *count)
     if (!f)
         return NULL;
     total = count_lines(f);
+    errno = 0;
     entries = malloc(sizeof(char *) * (total + 1));
     if (!entries) {
         fclose(f);
