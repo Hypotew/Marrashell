@@ -16,7 +16,6 @@ noexec.sh
 enoexec.bin
 divzero
 42sh
-include/my.h
 include/my_macro_abs.h
 include/result_pattern_design.h
 .42sh_history
