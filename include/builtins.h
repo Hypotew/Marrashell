@@ -48,5 +48,7 @@ int my_which(shell_t *shell, char **argv, bool *should_exit);
 // builtin utils prototypes
 int add_to_history(shell_t *shell);
 char *parse_hist_entry(char *line);
+int print_path_matches(shell_t *shell, const char *command, bool print_all,
+    bool print_missing);
 
 #endif // !BUILTINS_H_

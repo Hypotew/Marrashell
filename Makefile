@@ -1,7 +1,6 @@
 NAME = 42sh
 CC = epiclang
 CFLAGS = -Wall -Wextra -I./include -g3
-LDFLAGS = -lncurses
 
 SRCS_DIR = src
 SRCS = $(SRCS_DIR)/main.c \
@@ -47,6 +46,7 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/unalias.c \
 	   $(SRCS_DIR)/builtins/where.c \
 	   $(SRCS_DIR)/builtins/which.c \
+	   $(SRCS_DIR)/utils/which_where_utils.c \
 	   $(SRCS_DIR)/env/locals.c \
 	   $(SRCS_DIR)/env/aliases.c \
 	   $(SRCS_DIR)/expand/alias_expand.c
@@ -67,7 +67,7 @@ $(NAME): $(TARGET)
 
 $(TARGET):$(OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS)
+	$(CC) -o $(TARGET) $(OBJS)
 
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c include/*.h
