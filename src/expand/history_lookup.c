@@ -51,12 +51,16 @@ char *history_get_last(void)
     char *line = NULL;
     size_t len = 0;
     char *result = NULL;
+    char *cmd = NULL;
 
     if (!fp)
         return NULL;
     while (getline(&line, &len, fp) != -1) {
-        free(result);
-        result = extract_command(line);
+        cmd = extract_command(line);
+        if (cmd) {
+            free(result);
+            result = cmd;
+        }
     }
     free(line);
     fclose(fp);

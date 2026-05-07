@@ -77,17 +77,29 @@ int display_prompt(int last_status)
     return SUCCESS_EXIT;
 }
 
+static void shell_cleanup_partial(shell_t *shell)
+{
+    free_string_array(shell->env);
+    free(shell->locals);
+    free(shell->aliases);
+    shell->env = NULL;
+    shell->locals = NULL;
+    shell->aliases = NULL;
+}
+
 bool shell_init(shell_t *shell, char **envp)
 {
     shell->env = dup_string_array(envp);
+    shell->locals = NULL;
+    shell->aliases = NULL;
     if (shell->env == NULL)
         return false;
     shell->locals = calloc(1, sizeof(char *));
-    if (shell->locals == NULL)
-        return false;
     shell->aliases = calloc(1, sizeof(char *));
-    if (shell->aliases == NULL)
+    if (!shell->locals || !shell->aliases) {
+        shell_cleanup_partial(shell);
         return false;
+    }
     shell->last_status = SUCCESS_EXIT;
     shell->line = NULL;
     shell->last_pid = -1;

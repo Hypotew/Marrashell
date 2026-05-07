@@ -25,7 +25,7 @@ void local_print_all(char **locals);
 char *alias_get_value(char **aliases, const char *name);
 int alias_set_value(shell_t *shell, const char *name, const char *value);
 int alias_unset(shell_t *shell, const char *name);
-void alias_unset_all(shell_t *shell);
+int alias_unset_all(shell_t *shell);
 void alias_print_all(char **aliases);
 
 #endif // !ENV_H_

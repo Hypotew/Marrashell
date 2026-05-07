@@ -79,12 +79,17 @@ int alias_unset(shell_t *shell, const char *name)
     return SUCCESS_EXIT;
 }
 
-void alias_unset_all(shell_t *shell)
+int alias_unset_all(shell_t *shell)
 {
+    char **new_arr = calloc(1, sizeof(char *));
+
+    if (!new_arr)
+        return FAILURE_EXIT;
     for (size_t i = 0; shell->aliases[i] != NULL; i++)
         free(shell->aliases[i]);
     free(shell->aliases);
-    shell->aliases = calloc(1, sizeof(char *));
+    shell->aliases = new_arr;
+    return SUCCESS_EXIT;
 }
 
 void alias_print_all(char **aliases)

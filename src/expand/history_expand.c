@@ -17,7 +17,9 @@
 static bool should_skip_bang(char next)
 {
     return (next == ' ' || next == '\t' || next == '\n'
-        || next == '\0' || next == '=' || next == '(');
+        || next == '\0' || next == '=' || next == '('
+        || next == ';' || next == '|' || next == '&'
+        || next == '<' || next == '>');
 }
 
 static int read_number(const char *s, unsigned long long *out)
@@ -35,10 +37,14 @@ static int read_number(const char *s, unsigned long long *out)
 void buf_append(buf_t *b, const char *s)
 {
     size_t slen = strlen(s);
+    char *tmp = NULL;
 
     while (b->len + slen + 1 > b->cap) {
         b->cap = (b->cap == 0) ? 128 : b->cap * 2;
-        b->data = realloc(b->data, b->cap);
+        tmp = realloc(b->data, b->cap);
+        if (!tmp)
+            return;
+        b->data = tmp;
     }
     memcpy(b->data + b->len, s, slen);
     b->len += slen;
@@ -49,17 +55,18 @@ static char *resolve_substr(const char *input, int pos, int *consumed)
 {
     const char *start = input + pos + 2;
     const char *end = strchr(start, '?');
-    size_t len = end ? (size_t)(end - start) : strlen(start);
+    size_t raw_len = end ? (size_t)(end - start) : strlen(start);
+    size_t trim_len = raw_len;
     char *pattern = NULL;
     char *result = NULL;
 
-    while (len > 0 && isspace(start[len - 1]))
-        len--;
-    pattern = strndup(start, len);
+    while (trim_len > 0 && isspace(start[trim_len - 1]))
+        trim_len--;
+    pattern = strndup(start, trim_len);
     if (!pattern)
         return NULL;
     result = history_get_by_substr(pattern);
-    *consumed = 2 + (int)len + (end ? 1 : 0);
+    *consumed = 2 + (int)raw_len + (end ? 1 : 0);
     free(pattern);
     return result;
 }

@@ -39,7 +39,7 @@ static int read_var_name(const char *s, char *name, int max)
 {
     int i = 0;
 
-    while (i < max - 1 && (isalnum(s[i]) || s[i] == '_')) {
+    while (i < max - 1 && (isalnum(s[i]) || s[i] == '_' || s[i] == '.')) {
         name[i] = s[i];
         i++;
     }

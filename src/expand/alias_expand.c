@@ -32,17 +32,19 @@ static int read_word_len(const char *s)
     return i;
 }
 
-static char *build_expanded(const char *val, const char *rest)
+static char *build_expanded(const char *pre, int pre_len,
+    const char *val, const char *rest)
 {
     size_t vlen = strlen(val);
     size_t rlen = strlen(rest);
-    char *result = malloc(vlen + rlen + 1);
+    char *result = malloc(pre_len + vlen + rlen + 1);
 
     if (!result)
         return NULL;
-    memcpy(result, val, vlen);
-    memcpy(result + vlen, rest, rlen);
-    result[vlen + rlen] = '\0';
+    memcpy(result, pre, pre_len);
+    memcpy(result + pre_len, val, vlen);
+    memcpy(result + pre_len + vlen, rest, rlen);
+    result[pre_len + vlen + rlen] = '\0';
     return result;
 }
 
@@ -60,5 +62,5 @@ char *alias_expand(shell_t *shell, const char *input)
     val = alias_get_value(shell->aliases, name);
     if (!val)
         return strdup(input);
-    return build_expanded(val, input + ws + wlen);
+    return build_expanded(input, ws, val, input + ws + wlen);
 }
