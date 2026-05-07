@@ -10,6 +10,7 @@
 #include "shell.h"
 #include "builtins.h"
 #include "readline.h"
+#include "expand.h"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -31,6 +32,23 @@ static bool read_input(shell_t *shell, bool is_interactive)
     return getline(&shell->line, &cap, stdin) != -1;
 }
 
+static enum shell_status process_line(shell_t *shell)
+{
+    char *expanded = expand_line(shell);
+    enum shell_status status;
+    char *save;
+
+    if (!expanded)
+        return SHELL_CONTINUE;
+    status = run_command(shell, expanded);
+    save = shell->line;
+    shell->line = expanded;
+    add_to_history(shell);
+    shell->line = save;
+    free(expanded);
+    return status;
+}
+
 int shell_loop(shell_t *shell)
 {
     enum shell_status status = SHELL_CONTINUE;
@@ -41,9 +59,7 @@ int shell_loop(shell_t *shell)
     while (status == SHELL_CONTINUE) {
         if (!read_input(shell, is_interactive))
             break;
-        status = run_command(shell, shell->line);
-        if (add_to_history(shell) == FAILURE_EXIT)
-            return FAILURE_EXIT;
+        status = process_line(shell);
     }
     return shell->last_status;
 }
