@@ -13,6 +13,9 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/env.c \
 	   $(SRCS_DIR)/builtins/echo_last_status.c \
 	   $(SRCS_DIR)/builtins/history.c \
+	   $(SRCS_DIR)/utils/history_utils.c \
+	   $(SRCS_DIR)/builtins/repeat.c \
+	   $(SRCS_DIR)/utils/repeat_utils.c \
 	   $(SRCS_DIR)/exec/run_command.c \
 	   $(SRCS_DIR)/exec/resolve_path.c \
 	   $(SRCS_DIR)/exec/run_external.c \
@@ -32,6 +35,7 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/utils/history_utils.c \
 	   $(SRCS_DIR)/shell/readline.c \
 	   $(SRCS_DIR)/shell/readline_hist.c \
+	   $(SRCS_DIR)/git_analyse/git_check.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj

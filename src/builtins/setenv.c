@@ -13,22 +13,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int my_setenv(shell_t *shell, char **argv)
+int my_setenv(shell_t *shell, char **argv, bool *should_exit)
 {
+    const char *invalid_name =
+        "setenv: Variable name must contain alphanumeric characters.\n";
     size_t arg_nb = string_array_len(argv);
 
     if (arg_nb > 3) {
-        fprintf(stderr, "%s", "setenv: Too much arguments.\n");
+        if (fprintf(stderr, "%s", "setenv: Too much arguments.\n") < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
-    if (arg_nb == 1) {
-        my_env(shell, argv);
-        return SUCCESS_EXIT;
-    }
+    if (arg_nb == 1)
+        return my_env(shell, argv, should_exit);
     if (!valid_env_key(argv[1])) {
-        fprintf(stderr, "%s",
-            "setenv: Variable name must contain"
-            " alphanumeric characters.\n");
+        if (fprintf(stderr, "%s", invalid_name) < 0)
+            return FAILURE_EXIT;
         return SUCCESS_EXIT;
     }
     if (env_set_value(shell, argv[1], argv[2]) != SUCCESS_EXIT)

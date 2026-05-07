@@ -13,13 +13,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int my_unsetenv(shell_t *shell, char **argv)
+int my_unsetenv(shell_t *shell, char **argv,
+    __attribute__((unused)) bool *should_exit)
 {
     size_t arg_nb = string_array_len(argv);
     int value_index = -1;
 
     if (arg_nb == 1) {
-        fprintf(stderr, "%s", "unsetenv: Too few arguments.\n");
+        if (fprintf(stderr, "%s", "unsetenv: Too few arguments.\n") < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     for (size_t i = 1; i < arg_nb - 1; ++i) {
