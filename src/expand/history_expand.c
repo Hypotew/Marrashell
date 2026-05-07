@@ -124,10 +124,13 @@ static char *resolve_event(const char *input, int pos, int *consumed)
 static int handle_bang(const char *in, int *i, buf_t *b)
 {
     int consumed = 0;
+    const char *event_name = in + *i;
     char *event = resolve_event(in, *i, &consumed);
 
     if (!event) {
-        fprintf(stderr, "%.*s: Event not found.\n", consumed, in + *i);
+        if (fprintf(stderr, "%.*s: Event not found.\n", consumed,
+                event_name) < 0)
+            return -1;
         return -1;
     }
     buf_append(b, event);

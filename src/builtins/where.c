@@ -1,25 +1,22 @@
 /*
 ** EPITECH PROJECT, 2026
-** unset.c
+** where.c
 ** File description:
-** unset builtin for local variables
+** where builtin
 */
 
 #include "builtins.h"
-#include "env.h"
 #include "mysh.h"
 
 #include <stdio.h>
 
-int my_unset(shell_t *shell, char **argv,
+int my_where(__attribute__((unused)) shell_t *shell, char **argv,
     __attribute__((unused)) bool *should_exit)
 {
     if (argv[1] == NULL) {
-        if (fprintf(stderr, "unset: Too few arguments.\n") < 0)
+        if (fprintf(stderr, "%s", "where: Too few arguments.\n") < 0)
             return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
-    for (int i = 1; argv[i] != NULL; i++)
-        local_unset(shell, argv[i]);
     return SUCCESS_EXIT;
 }

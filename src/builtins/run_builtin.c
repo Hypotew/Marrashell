@@ -26,6 +26,8 @@ static const builtin_entry_t g_builtins[] = {
     {"unset", my_unset},
     {"alias", my_alias},
     {"unalias", my_unalias},
+    {"where", my_where},
+    {"which", my_which},
     {NULL, NULL},
 };
 

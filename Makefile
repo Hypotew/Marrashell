@@ -45,6 +45,8 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/unset.c \
 	   $(SRCS_DIR)/builtins/alias.c \
 	   $(SRCS_DIR)/builtins/unalias.c \
+	   $(SRCS_DIR)/builtins/where.c \
+	   $(SRCS_DIR)/builtins/which.c \
 	   $(SRCS_DIR)/env/locals.c \
 	   $(SRCS_DIR)/env/aliases.c \
 	   $(SRCS_DIR)/expand/alias_expand.c

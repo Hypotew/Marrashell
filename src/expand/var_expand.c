@@ -72,8 +72,10 @@ static int expand_braced(shell_t *shell, const char *in, int pos, buf_t *b)
 static int expand_status(shell_t *shell, buf_t *b)
 {
     char num[16] = {0};
+    int len = snprintf(num, sizeof(num), "%d", shell->last_status);
 
-    snprintf(num, sizeof(num), "%d", shell->last_status);
+    if (len < 0 || (size_t)len >= sizeof(num))
+        return 2;
     buf_append(b, num);
     return 2;
 }
