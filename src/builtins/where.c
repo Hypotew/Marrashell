@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-int my_where(__attribute__((unused)) shell_t *shell, char **argv,
+int my_where(shell_t *shell, char **argv,
     __attribute__((unused)) bool *should_exit)
 {
     if (argv[1] == NULL) {
@@ -18,5 +18,8 @@ int my_where(__attribute__((unused)) shell_t *shell, char **argv,
             return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
+    for (int i = 1; argv[i] != NULL; i++)
+        if (print_path_matches(shell, argv[i], true, false) == FAILURE_EXIT)
+            return FAILURE_EXIT;
     return SUCCESS_EXIT;
 }
