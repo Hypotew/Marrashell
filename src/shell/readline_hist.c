@@ -10,6 +10,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+char *parse_hist_entry(char *line)
+{
+    char *content = strstr(line, "  ");
+    size_t len;
+
+    if (!content)
+        return NULL;
+    content += 2;
+    len = strlen(content);
+    if (len > 0 && content[len - 1] == '\n')
+        content[len - 1] = '\0';
+    return strdup(content);
+}
+
 static int count_lines(FILE *f)
 {
     char *line = NULL;
