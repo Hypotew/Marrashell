@@ -67,16 +67,13 @@ char *history_get_last(void)
     return result;
 }
 
-char *history_get_by_number(unsigned long long n)
+static char *find_history_number(FILE *fp, unsigned long long n)
 {
-    FILE *fp = fopen(HISTORY_FILE, "r");
     char *line = NULL;
     size_t len = 0;
     unsigned long long num = 0;
     char *result = NULL;
 
-    if (!fp || n == 0)
-        return NULL;
     while (getline(&line, &len, fp) != -1) {
         num++;
         if (num == n) {
@@ -85,6 +82,20 @@ char *history_get_by_number(unsigned long long n)
         }
     }
     free(line);
+    return result;
+}
+
+char *history_get_by_number(unsigned long long n)
+{
+    FILE *fp = NULL;
+    char *result = NULL;
+
+    if (n == 0)
+        return NULL;
+    fp = fopen(HISTORY_FILE, "r");
+    if (!fp)
+        return NULL;
+    result = find_history_number(fp, n);
     fclose(fp);
     return result;
 }
