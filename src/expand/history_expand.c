@@ -34,21 +34,28 @@ static int read_number(const char *s, unsigned long long *out)
     return i;
 }
 
-void buf_append(buf_t *b, const char *s)
+int buf_append(buf_t *b, const char *s)
 {
-    size_t slen = strlen(s);
+    size_t slen = 0;
+    size_t new_cap = 0;
     char *tmp = NULL;
 
+    if (b == NULL || s == NULL)
+        return FAILURE_EXIT;
+    slen = strlen(s);
     while (b->len + slen + 1 > b->cap) {
-        b->cap = (b->cap == 0) ? 128 : b->cap * 2;
-        tmp = realloc(b->data, b->cap);
+        new_cap = (b->cap == 0) ? 128 : b->cap * 2;
+        tmp = realloc(b->data, new_cap);
         if (!tmp)
-            return;
+            return FAILURE_EXIT;
         b->data = tmp;
+        b->cap = new_cap;
     }
-    memcpy(b->data + b->len, s, slen);
+    if (slen > 0)
+        memcpy(b->data + b->len, s, slen);
     b->len += slen;
     b->data[b->len] = '\0';
+    return SUCCESS_EXIT;
 }
 
 static char *resolve_substr(const char *input, int pos, int *consumed)
@@ -133,7 +140,10 @@ static int handle_bang(const char *in, int *i, buf_t *b)
             return -1;
         return -1;
     }
-    buf_append(b, event);
+    if (buf_append(b, event) == FAILURE_EXIT) {
+        free(event);
+        return -1;
+    }
     free(event);
     *i += consumed;
     return 0;
@@ -146,7 +156,8 @@ static int expand_char(const char *input, int *i, buf_t *b, bool *sq)
     if (input[*i] == '\'')
         *sq = !(*sq);
     if (input[*i] != '!' || *sq || should_skip_bang(input[*i + 1])) {
-        buf_append(b, tmp);
+        if (buf_append(b, tmp) == FAILURE_EXIT)
+            return -1;
         return 0;
     }
     if (handle_bang(input, i, b) == -1)

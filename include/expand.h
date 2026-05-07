@@ -17,7 +17,7 @@ typedef struct {
     size_t cap;
 } buf_t;
 
-void buf_append(buf_t *b, const char *s);
+int buf_append(buf_t *b, const char *s);
 
 char *expand_line(shell_t *shell);
 char *history_expand(const char *input);
