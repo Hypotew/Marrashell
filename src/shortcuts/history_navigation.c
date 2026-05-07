@@ -67,27 +67,32 @@ void free_history(char **entries, int count)
     free(entries);
 }
 
-static void erase_input(size_t len)
+static int erase_input(size_t len)
 {
     for (size_t i = 0; i < len; i++)
-        write(STDOUT_FILENO, "\b \b", 3);
+        if (write(STDOUT_FILENO, "\b \b", 3) < 0)
+            return -1;
+    return 0;
 }
 
-static void print_input(rl_ctx_t *ctx, size_t old_len)
+static int print_input(rl_ctx_t *ctx, size_t old_len)
 {
-    erase_input(old_len);
-    write(STDOUT_FILENO, ctx->buf, ctx->len);
+    if (erase_input(old_len) < 0)
+        return -1;
+    if (write(STDOUT_FILENO, ctx->buf, ctx->len) < 0)
+        return -1;
+    return 0;
 }
 
-static void navigate(shell_t *shell, rl_ctx_t *ctx, int dir)
+static int navigate(shell_t *shell, rl_ctx_t *ctx, int dir)
 {
     size_t old_len = ctx->len;
 
     (void)shell;
     if (dir < 0 && (ctx->hist_count == 0 || ctx->hist_idx == 0))
-        return;
+        return 0;
     if (dir > 0 && ctx->hist_idx >= ctx->hist_count)
-        return;
+        return 0;
     ctx->hist_idx += dir;
     if (dir > 0 && ctx->hist_idx == ctx->hist_count) {
         ctx->len = 0;
@@ -97,19 +102,20 @@ static void navigate(shell_t *shell, rl_ctx_t *ctx, int dir)
         ctx->buf[1022] = '\0';
         ctx->len = strlen(ctx->buf);
     }
-    print_input(ctx, old_len);
+    return print_input(ctx, old_len);
 }
 
-void handle_arrow(shell_t *shell, rl_ctx_t *ctx)
+int handle_arrow(shell_t *shell, rl_ctx_t *ctx)
 {
     char seq[2];
 
     if (read(STDIN_FILENO, &seq[0], 1) != 1 || seq[0] != '[')
-        return;
+        return 0;
     if (read(STDIN_FILENO, &seq[1], 1) != 1)
-        return;
+        return 0;
     if (seq[1] == 'A')
-        navigate(shell, ctx, -1);
+        return navigate(shell, ctx, -1);
     if (seq[1] == 'B')
-        navigate(shell, ctx, 1);
+        return navigate(shell, ctx, 1);
+    return 0;
 }

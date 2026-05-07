@@ -28,9 +28,9 @@ typedef struct {
 
 struct termios raw_mode(void);
 void disable_raw_mode(struct termios *orig);
-void clear_terminal(void);
+int clear_terminal(void);
 int handle_control_char(shell_t *shell, rl_ctx_t *ctx, unsigned char c);
-void handle_arrow(shell_t *shell, rl_ctx_t *ctx);
+int handle_arrow(shell_t *shell, rl_ctx_t *ctx);
 char **load_history(int *count);
 void free_history(char **entries, int count);
 char *read_line(shell_t *shell);

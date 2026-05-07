@@ -14,13 +14,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static void handle_backspace(rl_ctx_t *ctx)
+static int handle_backspace(rl_ctx_t *ctx)
 {
     if (ctx->len == 0)
-        return;
+        return 0;
     ctx->len--;
     ctx->buf[ctx->len] = '\0';
-    write(STDOUT_FILENO, "\b \b", 3);
+    if (write(STDOUT_FILENO, "\b \b", 3) < 0)
+        return -1;
+    return 0;
 }
 
 static int append_printable_char(rl_ctx_t *ctx, char c)
@@ -29,7 +31,8 @@ static int append_printable_char(rl_ctx_t *ctx, char c)
         return 0;
     ctx->buf[ctx->len] = c;
     ctx->len++;
-    write(STDOUT_FILENO, &c, 1);
+    if (write(STDOUT_FILENO, &c, 1) < 0)
+        return -1;
     return 0;
 }
 
@@ -38,17 +41,14 @@ static int dispatch_char(shell_t *shell, rl_ctx_t *ctx, char c)
     int control_status;
 
     if (c == '\n' || c == '\r') {
-        write(STDOUT_FILENO, "\n", 1);
+        if (write(STDOUT_FILENO, "\n", 1) < 0)
+            return -1;
         return 1;
     }
-    if (c == ARROW_UP) {
-        handle_arrow(shell, ctx);
-        return 0;
-    }
-    if (c == 127) {
-        handle_backspace(ctx);
-        return 0;
-    }
+    if (c == ARROW_UP)
+        return handle_arrow(shell, ctx);
+    if (c == 127)
+        return handle_backspace(ctx);
     control_status = handle_control_char(shell, ctx, (unsigned char)c);
     if (control_status != 2)
         return control_status;

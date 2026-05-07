@@ -27,7 +27,9 @@ void disable_raw_mode(struct termios *orig)
     tcsetattr(STDIN_FILENO, TCSAFLUSH, orig);
 }
 
-void clear_terminal(void)
+int clear_terminal(void)
 {
-    write(STDOUT_FILENO, "\033[2J\033[H", 7);
+    if (write(STDOUT_FILENO, "\033[2J\033[H", 7) < 0)
+        return -1;
+    return 0;
 }
