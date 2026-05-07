@@ -34,8 +34,9 @@ static bool run_all_globs(char **argv, int argc, glob_t *globs)
         if (!has_glob(argv[i]))
             continue;
         ret = glob(argv[i], GLOB_TILDE, NULL, &globs[i]);
-        if (ret == GLOB_NOMATCH) {
+        if (ret == GLOB_NOMATCH)
             fprintf(stderr, "%s: No match.\n", argv[0]);
+        if (ret != 0) {
             free_globs(globs, i);
             return false;
         }
@@ -52,27 +53,38 @@ static int count_total(int argc, glob_t *globs)
     return total;
 }
 
-static void copy_glob_results(glob_t *g, char **res, int *k)
+static bool copy_glob_results(glob_t *g, char **res, int *k)
 {
     for (size_t j = 0; j < g->gl_pathc; j++) {
         res[*k] = strdup(g->gl_pathv[j]);
+        if (!res[*k])
+            return false;
         (*k)++;
     }
+    return true;
 }
 
-static void fill_result(char **argv, int argc, glob_t *globs, char **res)
+static bool fill_one(char **argv, int i, glob_t *globs, char **res, int *k)
+{
+    if (globs[i].gl_pathc == 0) {
+        res[*k] = strdup(argv[i]);
+        if (!res[*k])
+            return false;
+        (*k)++;
+        return true;
+    }
+    return copy_glob_results(&globs[i], res, k);
+}
+
+static bool fill_result(char **argv, int argc, glob_t *globs, char **res)
 {
     int k = 0;
 
-    for (int i = 0; i < argc; i++) {
-        if (globs[i].gl_pathc == 0) {
-            res[k] = strdup(argv[i]);
-            k++;
-        } else {
-            copy_glob_results(&globs[i], res, &k);
-        }
-    }
+    for (int i = 0; i < argc; i++)
+        if (!fill_one(argv, i, globs, res, &k))
+            return false;
     res[k] = NULL;
+    return true;
 }
 
 char **glob_expand_argv(char **argv)
@@ -90,8 +102,10 @@ char **glob_expand_argv(char **argv)
     }
     total = count_total(argc, globs);
     result = malloc(sizeof(char *) * (total + 1));
-    if (result)
-        fill_result(argv, argc, globs, result);
+    if (result && !fill_result(argv, argc, globs, result)) {
+        free_string_array(result);
+        result = NULL;
+    }
     free_globs(globs, argc);
     free(globs);
     return result;
