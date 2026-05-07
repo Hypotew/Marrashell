@@ -21,7 +21,8 @@
 
 static void handle_sigint(__attribute__((unused)) int signum)
 {
-    (void)!write(STDOUT_FILENO, "\n", 1);
+    if (write(STDOUT_FILENO, "\n", 1) < 0)
+        return;
 }
 
 static int setup_interactive_signals(void)

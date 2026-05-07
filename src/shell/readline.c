@@ -39,12 +39,17 @@ static void redraw(shell_t *shell, rl_ctx_t *ctx)
 
     if (getcwd(cwd, sizeof(cwd)) == NULL)
         return;
-    write(STDOUT_FILENO, "\r\033[K", 4);
-    write(STDOUT_FILENO, cwd, strlen(cwd));
-    write(STDOUT_FILENO, " ", 1);
+    if (write(STDOUT_FILENO, "\r\033[K", 4) < 0)
+        return;
+    if (write(STDOUT_FILENO, cwd, strlen(cwd)) < 0)
+        return;
+    if (write(STDOUT_FILENO, " ", 1) < 0)
+        return;
     sym = (shell->last_status == 0) ? SUCCESS_PROMPT : FAILURE_PROMPT;
-    write(STDOUT_FILENO, sym, strlen(sym));
-    write(STDOUT_FILENO, ctx->buf, ctx->len);
+    if (write(STDOUT_FILENO, sym, strlen(sym)) < 0)
+        return;
+    if (write(STDOUT_FILENO, ctx->buf, ctx->len) < 0)
+        return;
 }
 
 static void navigate(shell_t *shell, rl_ctx_t *ctx, int dir)
@@ -85,13 +90,15 @@ static void handle_backspace(rl_ctx_t *ctx)
         return;
     ctx->len--;
     ctx->buf[ctx->len] = '\0';
-    write(STDOUT_FILENO, "\b \b", 3);
+    if (write(STDOUT_FILENO, "\b \b", 3) < 0)
+        return;
 }
 
 static int dispatch_char(shell_t *shell, rl_ctx_t *ctx, char c)
 {
     if (c == '\n' || c == '\r') {
-        write(STDOUT_FILENO, "\n", 1);
+        if (write(STDOUT_FILENO, "\n", 1) < 0)
+            return -1;
         return 1;
     }
     if (c == ARROW_UP) {
@@ -105,7 +112,8 @@ static int dispatch_char(shell_t *shell, rl_ctx_t *ctx, char c)
     if (ctx->len + 2 < 1024) {
         ctx->buf[ctx->len] = c;
         ctx->len++;
-        write(STDOUT_FILENO, &c, 1);
+        if (write(STDOUT_FILENO, &c, 1) < 0)
+            return -1;
     }
     return 0;
 }

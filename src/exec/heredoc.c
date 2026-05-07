@@ -22,7 +22,8 @@ static void write_lines_until(int write_fd, char *delim)
     ssize_t len = 0;
 
     while (1) {
-        (void)write(STDOUT_FILENO, "> ", 2);
+        if (write(STDOUT_FILENO, "> ", 2) < 0)
+            break;
         len = getline(&line, &n, stdin);
         if (len < 0)
             break;
@@ -31,7 +32,8 @@ static void write_lines_until(int write_fd, char *delim)
         if (strcmp(line, delim) == 0)
             break;
         line[len - 1] = '\n';
-        (void)write(write_fd, line, len);
+        if (write(write_fd, line, len) < 0)
+            break;
     }
     free(line);
 }
