@@ -7,7 +7,7 @@
 
 ## Medium
 - [x] Variable expansion — `$VAR`, `$?`, `set`/`unset` builtins, local var storage
-- [ ] Aliases — `alias`/`unalias` builtins, expansion before tokenizing
+- [x] Aliases — `alias`/`unalias` builtins, expansion before tokenizing
 - [ ] Special variables — `$term`, `$cwd`, `$precmd`, `$cwdcmd`, `$ignoreof`
 - [ ] Globbing — `*`, `?`, `[`, `]` via `glob()` from libc
 - [ ] Backticks — command substitution, fork+pipe+capture stdout

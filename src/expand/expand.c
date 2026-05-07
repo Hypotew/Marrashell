@@ -12,11 +12,16 @@
 char *expand_line(shell_t *shell)
 {
     char *hist = history_expand(shell->line);
+    char *aliased = NULL;
     char *result = NULL;
 
     if (!hist)
         return NULL;
-    result = var_expand(shell, hist);
+    aliased = alias_expand(shell, hist);
     free(hist);
+    if (!aliased)
+        return NULL;
+    result = var_expand(shell, aliased);
+    free(aliased);
     return result;
 }

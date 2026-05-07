@@ -85,6 +85,9 @@ bool shell_init(shell_t *shell, char **envp)
     shell->locals = calloc(1, sizeof(char *));
     if (shell->locals == NULL)
         return false;
+    shell->aliases = calloc(1, sizeof(char *));
+    if (shell->aliases == NULL)
+        return false;
     shell->last_status = SUCCESS_EXIT;
     shell->line = NULL;
     shell->last_pid = -1;

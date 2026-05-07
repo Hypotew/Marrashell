@@ -41,7 +41,11 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/expand/var_expand.c \
 	   $(SRCS_DIR)/builtins/set.c \
 	   $(SRCS_DIR)/builtins/unset.c \
-	   $(SRCS_DIR)/env/locals.c
+	   $(SRCS_DIR)/builtins/alias.c \
+	   $(SRCS_DIR)/builtins/unalias.c \
+	   $(SRCS_DIR)/env/locals.c \
+	   $(SRCS_DIR)/env/aliases.c \
+	   $(SRCS_DIR)/expand/alias_expand.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj
