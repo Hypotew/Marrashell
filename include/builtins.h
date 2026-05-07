@@ -38,5 +38,6 @@ int my_env(shell_t *shell, char **argv);
 int echo_last_status(shell_t *shell, char **argv);
 int history(shell_t *shell, char **argv);
 int add_to_history(shell_t *shell);
+char *parse_hist_entry(char *line);
 
 #endif // !BUILTINS_H_
