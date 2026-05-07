@@ -13,6 +13,9 @@
     #include "shell.h"
 
     #define ARROW_UP '\033'
+    #define CTRL_C 3
+    #define CTRL_D 4
+    #define CTRL_L 12
     #define MAX_HIST 1000
 
 typedef struct {
@@ -25,6 +28,9 @@ typedef struct {
 
 struct termios raw_mode(void);
 void disable_raw_mode(struct termios *orig);
+int clear_terminal(void);
+int handle_control_char(shell_t *shell, rl_ctx_t *ctx, unsigned char c);
+int handle_arrow(shell_t *shell, rl_ctx_t *ctx);
 char **load_history(int *count);
 void free_history(char **entries, int count);
 char *read_line(shell_t *shell);

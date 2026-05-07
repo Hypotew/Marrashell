@@ -32,6 +32,11 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/parser/parse_free.c \
 	   $(SRCS_DIR)/utils/string_array.c \
 	   $(SRCS_DIR)/utils/split_words.c \
+	   $(SRCS_DIR)/shortcuts/terminal_mode.c \
+	   $(SRCS_DIR)/shortcuts/input_controls.c \
+	   $(SRCS_DIR)/shortcuts/interactive_inputs.c \
+	   $(SRCS_DIR)/shortcuts/history_navigation.c \
+	   $(SRCS_DIR)/git_analyse/git_check.c
 	   $(SRCS_DIR)/shell/readline.c \
 	   $(SRCS_DIR)/shell/readline_hist.c \
 	   $(SRCS_DIR)/git_analyse/git_check.c \
