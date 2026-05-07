@@ -23,7 +23,8 @@ jobs:
       - name: Check if triggered by bot
         id: check
         run: |
-          if [ "${{ github.actor }}" = "github-actions[bot]" ]; then
+          if [ "${{ github.actor }}" = "github-actions[bot]" ] || \
+          [ "${{ github.repository }}" != "Hypotew/Marrashell" ]; then
             echo "should_run=false" >> $GITHUB_OUTPUT
           else
             echo "should_run=true" >> $GITHUB_OUTPUT
