@@ -19,9 +19,13 @@ static const builtin_entry_t g_builtins[] = {
     {"setenv", my_setenv},
     {"unsetenv", my_unsetenv},
     {"env", my_env},
-    {"echo", echo_last_status},
+    {"echo", my_echo},
     {"history", my_history},
     {"repeat", my_repeat},
+    {"set", my_set},
+    {"unset", my_unset},
+    {"alias", my_alias},
+    {"unalias", my_unalias},
     {NULL, NULL},
 };
 

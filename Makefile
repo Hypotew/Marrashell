@@ -11,7 +11,7 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/setenv.c \
 	   $(SRCS_DIR)/builtins/unsetenv.c \
 	   $(SRCS_DIR)/builtins/env.c \
-	   $(SRCS_DIR)/builtins/echo_last_status.c \
+	   $(SRCS_DIR)/builtins/echo.c \
 	   $(SRCS_DIR)/builtins/history.c \
 	   $(SRCS_DIR)/utils/history_utils.c \
 	   $(SRCS_DIR)/builtins/repeat.c \
@@ -34,7 +34,18 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/utils/split_words.c \
 	   $(SRCS_DIR)/shell/readline.c \
 	   $(SRCS_DIR)/shell/readline_hist.c \
-	   $(SRCS_DIR)/git_analyse/git_check.c
+	   $(SRCS_DIR)/git_analyse/git_check.c \
+	   $(SRCS_DIR)/expand/expand.c \
+	   $(SRCS_DIR)/expand/history_expand.c \
+	   $(SRCS_DIR)/expand/history_lookup.c \
+	   $(SRCS_DIR)/expand/var_expand.c \
+	   $(SRCS_DIR)/builtins/set.c \
+	   $(SRCS_DIR)/builtins/unset.c \
+	   $(SRCS_DIR)/builtins/alias.c \
+	   $(SRCS_DIR)/builtins/unalias.c \
+	   $(SRCS_DIR)/env/locals.c \
+	   $(SRCS_DIR)/env/aliases.c \
+	   $(SRCS_DIR)/expand/alias_expand.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj
