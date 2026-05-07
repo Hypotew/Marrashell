@@ -7,10 +7,8 @@
 
 #include "shell.h"
 #include "mysh.h"
-#include "utils.h"
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
@@ -27,7 +25,6 @@ int main(__attribute__((unused)) int argc,
         return FAILURE_EXIT;
     }
     exit_code = shell_loop(&shell);
-    free_string_array(shell.env);
-    free(shell.line);
+    shell_destroy(&shell);
     return exit_code;
 }
