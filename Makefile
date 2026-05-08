@@ -2,6 +2,21 @@ NAME = 42sh
 CC = epiclang
 CFLAGS = -Wall -Wextra -I./include -g3
 
+TEST_NAME = mysh_tests
+TEST_LDFLAGS = -lcriterion -lncurses
+TEST_SRCS = tests/test_utils.c \
+	   tests/test_parser.c \
+	   tests/test_glob.c \
+	   $(SRCS_DIR)/utils/string_array.c \
+	   $(SRCS_DIR)/utils/split_words.c \
+	   $(SRCS_DIR)/parser/tokenize.c \
+	   $(SRCS_DIR)/parser/parse_command.c \
+	   $(SRCS_DIR)/parser/parse_utils.c \
+	   $(SRCS_DIR)/parser/parse_create.c \
+	   $(SRCS_DIR)/parser/parse_append.c \
+	   $(SRCS_DIR)/parser/parse_free.c \
+	   $(SRCS_DIR)/expand/glob_expand.c
+
 SRCS_DIR = src
 SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/run_builtin.c \
@@ -81,13 +96,17 @@ clean:
 	rm -rf $(OBJS_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(TEST_NAME)
+	rm -f *.gcno *.gcda *.gcov
 
 re: fclean all
 
-tests_run: all
-	$(MAKE) -C tests re
-	./tests/mysh_tests
+$(TEST_NAME): $(TEST_SRCS)
+	gcc -Wall -Wextra -I./include -g3 --coverage -o $(TEST_NAME) $(TEST_SRCS) $(TEST_LDFLAGS)
+
+tests_run: $(TEST_NAME)
+	./$(TEST_NAME)
+	gcovr --exclude tests/
 
 compdb:
 	@mkdir -p $(BUILD_DIR)

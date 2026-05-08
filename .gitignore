@@ -5,7 +5,6 @@
 *.pch
 *.gcda
 *.gcno
-tests
 tester.sh
 README
 .vscode
