@@ -11,12 +11,31 @@
 #include "builtins.h"
 #include "readline.h"
 #include "expand.h"
+#include "env.h"
 
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
+
+static void run_hook(shell_t *shell, const char *name)
+{
+    char *val = local_get_value(shell->locals, name);
+
+    if (val && val[0] != '\0')
+        run_command(shell, val);
+}
+
+static bool handle_eof(shell_t *shell, bool is_interactive)
+{
+    if (!is_interactive)
+        return false;
+    if (!local_get_value(shell->locals, "ignoreof"))
+        return false;
+    fprintf(stderr, "\nUse \"exit\" to leave %s.\n", "42sh");
+    return true;
+}
 
 static bool read_input(shell_t *shell, bool is_interactive)
 {
@@ -25,7 +44,9 @@ static bool read_input(shell_t *shell, bool is_interactive)
     if (is_interactive) {
         free(shell->line);
         shell->line = read_line(shell);
-        return shell->line != NULL;
+        if (shell->line != NULL)
+            return true;
+        return handle_eof(shell, is_interactive);
     }
     free(shell->line);
     shell->line = NULL;
@@ -57,6 +78,7 @@ int shell_loop(shell_t *shell)
     if (display_marrashell() == FAILURE_EXIT)
         return FAILURE_EXIT;
     while (status == SHELL_CONTINUE) {
+        run_hook(shell, "precmd");
         if (!read_input(shell, is_interactive))
             break;
         status = process_line(shell);
