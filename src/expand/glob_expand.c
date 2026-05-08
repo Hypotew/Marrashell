@@ -20,7 +20,7 @@ static bool has_glob(const char *s)
 static void free_globs(glob_t *globs, int count)
 {
     for (int i = 0; i < count; i++)
-        if (globs[i].gl_pathc > 0)
+        if (globs[i].gl_pathv != NULL)
             globfree(&globs[i]);
 }
 
@@ -37,7 +37,7 @@ static bool run_all_globs(char **argv, int argc, glob_t *globs)
         if (ret == GLOB_NOMATCH)
             fprintf(stderr, "%s: No match.\n", argv[0]);
         if (ret != 0) {
-            free_globs(globs, i);
+            free_globs(globs, i + 1);
             return false;
         }
     }
