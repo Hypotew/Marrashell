@@ -15,16 +15,12 @@
 #include <ctype.h>
 #include <stdbool.h>
 
-static char *lookup_var(shell_t *shell, const char *name)
+static char *lookup_env(shell_t *shell, const char *name)
 {
-    char *key = NULL;
-    char *val = NULL;
     size_t len = strlen(name);
+    char *key = malloc(len + 2);
+    char *val = NULL;
 
-    val = local_get_value(shell->locals, name);
-    if (val)
-        return val;
-    key = malloc(len + 2);
     if (!key)
         return NULL;
     memcpy(key, name, len);
@@ -33,6 +29,16 @@ static char *lookup_var(shell_t *shell, const char *name)
     val = env_get_value(shell->env, key);
     free(key);
     return val;
+}
+
+static char *lookup_var(shell_t *shell, const char *name)
+{
+    char *val = NULL;
+
+    val = local_get_value(shell->locals, name);
+    if (val)
+        return val;
+    return lookup_env(shell, name);
 }
 
 static int read_var_name(const char *s, char *name, int max)
@@ -71,7 +77,7 @@ static int expand_braced(shell_t *shell, const char *in, int pos, buf_t *b)
     return (int)(len + 3);
 }
 
-static int expand_status(shell_t *shell, buf_t *b)
+static int append_status(shell_t *shell, buf_t *b)
 {
     char num[16] = {0};
     int len = snprintf(num, sizeof(num), "%d", shell->last_status);
@@ -80,7 +86,7 @@ static int expand_status(shell_t *shell, buf_t *b)
         return -1;
     if (buf_append(b, num) == FAILURE_EXIT)
         return -1;
-    return 2;
+    return 0;
 }
 
 static int expand_simple(shell_t *shell, const char *in, int pos, buf_t *b)
@@ -94,6 +100,8 @@ static int expand_simple(shell_t *shell, const char *in, int pos, buf_t *b)
             return -1;
         return 1;
     }
+    if (strcmp(name, "status") == 0)
+        return append_status(shell, b) == -1 ? -1 : 1 + consumed;
     val = lookup_var(shell, name);
     if (val)
         if (buf_append(b, val) == FAILURE_EXIT)
@@ -104,7 +112,7 @@ static int expand_simple(shell_t *shell, const char *in, int pos, buf_t *b)
 static int expand_dollar(shell_t *shell, const char *in, int pos, buf_t *b)
 {
     if (in[pos + 1] == '?')
-        return expand_status(shell, b);
+        return append_status(shell, b) == -1 ? -1 : 2;
     if (in[pos + 1] == '{')
         return expand_braced(shell, in, pos, b);
     return expand_simple(shell, in, pos, b);

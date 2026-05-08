@@ -6,9 +6,11 @@
 */
 
 #include "shell.h"
+#include "env.h"
 #include "mysh.h"
 #include "utils.h"
 
+#include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -77,6 +79,17 @@ int display_prompt(int last_status)
     return SUCCESS_EXIT;
 }
 
+static void init_special_vars(shell_t *shell)
+{
+    char cwd[PATH_MAX];
+    char *term = env_get_value(shell->env, "TERM=");
+
+    if (getcwd(cwd, PATH_MAX) != NULL)
+        local_set_value(shell, "cwd", cwd);
+    if (term)
+        local_set_value(shell, "term", term);
+}
+
 static void shell_cleanup_partial(shell_t *shell)
 {
     free_string_array(shell->env);
@@ -103,6 +116,7 @@ bool shell_init(shell_t *shell, char **envp)
     shell->last_status = SUCCESS_EXIT;
     shell->line = NULL;
     shell->last_pid = -1;
+    init_special_vars(shell);
     return true;
 }
 
