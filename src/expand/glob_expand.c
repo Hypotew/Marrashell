@@ -64,16 +64,16 @@ static bool copy_glob_results(glob_t *g, char **res, int *k)
     return true;
 }
 
-static bool fill_one(char **argv, int i, glob_t *globs, char **res, int *k)
+static bool fill_one(const char *arg, glob_t *g, char **res, int *k)
 {
-    if (globs[i].gl_pathc == 0) {
-        res[*k] = strdup(argv[i]);
+    if (g->gl_pathc == 0) {
+        res[*k] = strdup(arg);
         if (!res[*k])
             return false;
         (*k)++;
         return true;
     }
-    return copy_glob_results(&globs[i], res, k);
+    return copy_glob_results(g, res, k);
 }
 
 static bool fill_result(char **argv, int argc, glob_t *globs, char **res)
@@ -81,7 +81,7 @@ static bool fill_result(char **argv, int argc, glob_t *globs, char **res)
     int k = 0;
 
     for (int i = 0; i < argc; i++)
-        if (!fill_one(argv, i, globs, res, &k))
+        if (!fill_one(argv[i], &globs[i], res, &k))
             return false;
     res[k] = NULL;
     return true;
