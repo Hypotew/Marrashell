@@ -28,7 +28,7 @@ static void *output_reader_loop(void *arg)
     ssize_t i;
 
     while (tui->running) {
-        n = read(tui->pipe_fds[0], buf, sizeof(buf) - 1);
+        n = read(tui->pipe_fds[0], buf, sizeof(buf));
         if (n <= 0)
             break;
         pthread_mutex_lock(&tui->lock);
@@ -52,8 +52,10 @@ bool tui_start_reader_thread(tui_t *tui)
 void tui_output_scroll(tui_t *tui, int delta)
 {
     int out_h = LINES - TUI_INPUT_H;
-    int max_scroll = tui->pad_lines - out_h;
+    int max_scroll;
 
+    pthread_mutex_lock(&tui->lock);
+    max_scroll = tui->pad_lines - out_h;
     if (max_scroll < 0)
         max_scroll = 0;
     tui->scroll_offset += delta;
@@ -61,15 +63,14 @@ void tui_output_scroll(tui_t *tui, int delta)
         tui->scroll_offset = 0;
     if (tui->scroll_offset > max_scroll)
         tui->scroll_offset = max_scroll;
-    pthread_mutex_lock(&tui->lock);
     tui_pad_refresh(tui);
     pthread_mutex_unlock(&tui->lock);
 }
 
 void tui_output_reset_scroll(tui_t *tui)
 {
-    tui->scroll_offset = 0;
     pthread_mutex_lock(&tui->lock);
+    tui->scroll_offset = 0;
     tui_pad_refresh(tui);
     pthread_mutex_unlock(&tui->lock);
 }
