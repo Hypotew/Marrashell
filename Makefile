@@ -30,6 +30,7 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/echo.c \
 	   $(SRCS_DIR)/builtins/history.c \
 	   $(SRCS_DIR)/utils/history_utils.c \
+	   $(SRCS_DIR)/utils/history_load.c \
 	   $(SRCS_DIR)/builtins/repeat.c \
 	   $(SRCS_DIR)/utils/repeat_utils.c \
 	   $(SRCS_DIR)/exec/run_command.c \
@@ -48,10 +49,6 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/parser/parse_free.c \
 	   $(SRCS_DIR)/utils/string_array.c \
 	   $(SRCS_DIR)/utils/split_words.c \
-	   $(SRCS_DIR)/shortcuts/terminal_mode.c \
-	   $(SRCS_DIR)/shortcuts/input_controls.c \
-	   $(SRCS_DIR)/shortcuts/interactive_inputs.c \
-	   $(SRCS_DIR)/shortcuts/history_navigation.c \
 	   $(SRCS_DIR)/git_analyse/git_check.c \
 	   $(SRCS_DIR)/expand/expand.c \
 	   $(SRCS_DIR)/expand/history_expand.c \
