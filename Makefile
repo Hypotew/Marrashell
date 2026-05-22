@@ -7,6 +7,8 @@ TEST_LDFLAGS = -lcriterion -lncurses
 TEST_SRCS = tests/test_utils.c \
 	   tests/test_parser.c \
 	   tests/test_glob.c \
+	   tests/test_tui.c \
+	   $(SRCS_DIR)/tui/tui_theme.c \
 	   $(SRCS_DIR)/utils/string_array.c \
 	   $(SRCS_DIR)/utils/split_words.c \
 	   $(SRCS_DIR)/parser/tokenize.c \
