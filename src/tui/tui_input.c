@@ -33,6 +33,7 @@ static void input_render(tui_t *tui, input_ctx_t *ctx, int last_status)
     wattroff(tui->win_input, COLOR_PAIR(pair) | A_BOLD);
     wattron(tui->win_input, COLOR_PAIR(6));
     mvwprintw(tui->win_input, 1, 8, "%s", ctx->buf);
+    wattroff(tui->win_input, COLOR_PAIR(6));
     wmove(tui->win_input, 1, 8 + ctx->cursor);
     wrefresh(tui->win_input);
     pthread_mutex_unlock(&tui->lock);
