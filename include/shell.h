@@ -10,10 +10,9 @@
 
     #include <unistd.h>
     #include <stdbool.h>
+    #include "tui.h"
 
-typedef struct s_tui tui_t;
-
-typedef struct {
+typedef struct s_shell {
     char **env;
     char **locals;
     char **aliases;

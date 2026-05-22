@@ -9,6 +9,7 @@
     #define BUILTINS_H_
 
     #define HISTORY_FILE ".42sh_history"
+    #define MAX_HIST 1000
 
     #include <stdbool.h>
     #include <stdio.h>
