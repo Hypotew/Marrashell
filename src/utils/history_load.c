@@ -58,6 +58,8 @@ char **load_history(int *count)
 
 void free_history(char **entries, int count)
 {
+    if (!entries)
+        return;
     for (int i = 0; i < count; i++)
         free(entries[i]);
     free(entries);
