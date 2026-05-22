@@ -87,7 +87,6 @@ char *read_line(shell_t *shell)
         return NULL;
     ctx.hist = load_history(&ctx.hist_count);
     ctx.hist_idx = ctx.hist_count;
-    display_prompt(shell->last_status);
     fflush(stdout);
     orig = raw_mode();
     status = read_chars(shell, &ctx);

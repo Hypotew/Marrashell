@@ -67,7 +67,15 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/env/locals.c \
 	   $(SRCS_DIR)/env/aliases.c \
 	   $(SRCS_DIR)/expand/alias_expand.c \
-	   $(SRCS_DIR)/expand/glob_expand.c
+	   $(SRCS_DIR)/expand/glob_expand.c \
+	   $(SRCS_DIR)/tui/tui_init.c \
+	   $(SRCS_DIR)/tui/tui_input.c \
+	   $(SRCS_DIR)/tui/tui_input_keys.c \
+	   $(SRCS_DIR)/tui/tui_output.c \
+	   $(SRCS_DIR)/tui/tui_resize.c \
+	   $(SRCS_DIR)/tui/tui_sidebar.c \
+	   $(SRCS_DIR)/tui/tui_theme.c \
+	   $(SRCS_DIR)/tui/tui_theme_menu.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj
@@ -85,7 +93,7 @@ $(NAME): $(TARGET)
 
 $(TARGET):$(OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) -o $(TARGET) $(OBJS)
+	$(CC) -o $(TARGET) $(OBJS) -lncurses -lpthread
 
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c include/*.h

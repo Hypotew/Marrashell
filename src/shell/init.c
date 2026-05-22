@@ -2,82 +2,21 @@
 ** EPITECH PROJECT, 2026
 ** init.c
 ** File description:
-** initialize shell state
+** initialize shell state + TUI
 */
 
 #include "shell.h"
 #include "env.h"
 #include "mysh.h"
 #include "utils.h"
+#include "tui.h"
 
 #include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-
-static const char *const BANNER[] = {
-    "┌────────────"
-    "────────────"
-    "────────────"
-    "────────────"
-    "────────────"
-    "────┐\n",
-    "│                                                                │\n",
-    "│     __    __     ______     ______     ______     ______       │\n",
-    "│    /\\ \"-./  \\   /\\  __ \\   /\\  == \\   /\\  == \\   "
-    "/\\  __ \\      │\n",
-    "│    \\ \\ \\-./\\ \\  \\ \\  __ \\  \\ \\  __<   \\ \\  __<   "
-    "\\ \\  __ \\     │\n",
-    "│     \\ \\_\\ \\ \\_\\  \\ \\_\\ \\_\\  "
-    "\\ \\_\\ \\_\\  \\ \\_\\ \\_\\  \\ \\_\\ \\_\\    │\n",
-    "│      \\/_/  \\/_/   \\/_/\\/_/   \\/_/ /_/   \\/_/ /_/   "
-    "\\/_/\\/_/    │\n",
-    "│                                                                │\n",
-    "│     ______     __  __     ______     __         __             │\n",
-    "│    /\\  ___\\   /\\ \\_\\ \\   /\\  ___\\   /\\ \\       "
-    "/\\ \\            │\n",
-    "│    \\ \\___  \\  \\ \\  __ \\  \\ \\  __\\   \\ \\ \\____  "
-    "\\ \\ \\____       │\n",
-    "│     \\/\\_____\\  \\ \\_\\ \\_\\  \\ \\_____\\  \\ \\_____\\  "
-    "\\ \\_____\\      │\n",
-    "│      \\/_____/   \\/_/\\/_/   \\/_____/   \\/_____/   "
-    "\\/_____/      │\n",
-    "│                                                                │\n",
-    "└────────────"
-    "────────────"
-    "────────────"
-    "────────────"
-    "────────────"
-    "────┘\n",
-    NULL
-};
-
-int display_marrashell(void)
-{
-    for (size_t i = 0; BANNER[i] != NULL; i++)
-        if (printf("%s", BANNER[i]) < 0)
-            return FAILURE_EXIT;
-    if (printf("\n\n") < 0)
-        return FAILURE_EXIT;
-    return SUCCESS_EXIT;
-}
-
-int display_prompt(int last_status)
-{
-    char cwd[4096];
-
-    if (is_in_repository() == true)
-        if (display_branch() == FAILURE_EXIT)
-            return FAILURE_EXIT;
-    if (getcwd(cwd, sizeof(cwd)) == NULL)
-        return FAILURE_EXIT;
-    if (printf("%s ", cwd) < 0)
-        return FAILURE_EXIT;
-    if (printf("%s", last_status == 0 ? SUCCESS_PROMPT : FAILURE_PROMPT) < 0)
-        return FAILURE_EXIT;
-    return SUCCESS_EXIT;
-}
+#include <string.h>
 
 static void init_special_vars(shell_t *shell)
 {
@@ -90,46 +29,75 @@ static void init_special_vars(shell_t *shell)
         local_set_value(shell, "term", term);
 }
 
-static void shell_cleanup_partial(shell_t *shell)
+static void load_rc_file(shell_t *shell)
 {
-    free_string_array(shell->env);
-    free(shell->locals);
-    free(shell->aliases);
-    shell->env = NULL;
-    shell->locals = NULL;
-    shell->aliases = NULL;
+    char path[512];
+    char line[256];
+    const char *home = getenv("HOME");
+    FILE *f;
+
+    if (!home)
+        return;
+    snprintf(path, sizeof(path), "%s/.42shrc", home);
+    f = fopen(path, "r");
+    if (!f)
+        return;
+    while (fgets(line, sizeof(line), f)) {
+        if (strncmp(line, "set theme=", 10) == 0) {
+            line[strcspn(line, "\n")] = '\0';
+            local_set_value(shell, "theme", line + 10);
+        }
+    }
+    fclose(f);
+}
+
+static void init_tui(shell_t *shell)
+{
+    char *theme_name = local_get_value(shell->locals, "theme");
+    int theme_id = 0;
+
+    if (theme_name)
+        theme_id = tui_get_theme_by_name(theme_name);
+    if (!isatty(STDIN_FILENO))
+        return;
+    shell->tui = tui_init(theme_id < 0 ? 0 : theme_id);
+    if (shell->tui)
+        tui_register_resize_handler(shell->tui);
 }
 
 bool shell_init(shell_t *shell, char **envp)
 {
     shell->env = dup_string_array(envp);
-    shell->locals = NULL;
-    shell->aliases = NULL;
-    if (shell->env == NULL)
-        return false;
     shell->locals = calloc(1, sizeof(char *));
     shell->aliases = calloc(1, sizeof(char *));
-    if (!shell->locals || !shell->aliases) {
-        shell_cleanup_partial(shell);
+    if (!shell->env || !shell->locals || !shell->aliases) {
+        free_string_array(shell->env);
+        free(shell->locals);
+        free(shell->aliases);
         return false;
     }
-    shell->last_status = SUCCESS_EXIT;
+    shell->last_status = 0;
     shell->line = NULL;
     shell->last_pid = -1;
+    shell->tui = NULL;
     init_special_vars(shell);
+    load_rc_file(shell);
+    init_tui(shell);
     return true;
 }
 
 void shell_destroy(shell_t *shell)
 {
-    if (shell == NULL)
+    if (!shell)
         return;
     free_string_array(shell->env);
     free_string_array(shell->locals);
     free_string_array(shell->aliases);
     free(shell->line);
+    tui_destroy(shell->tui);
     shell->env = NULL;
     shell->locals = NULL;
     shell->aliases = NULL;
     shell->line = NULL;
+    shell->tui = NULL;
 }

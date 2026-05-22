@@ -31,9 +31,9 @@ static int handle_ctrl_d(rl_ctx_t *ctx)
 
 static int handle_ctrl_l(shell_t *shell, rl_ctx_t *ctx)
 {
+    (void)shell;
     if (clear_terminal() < 0)
         return -1;
-    display_prompt(shell->last_status);
     fflush(stdout);
     if (write(STDOUT_FILENO, ctx->buf, ctx->len) < 0)
         return -1;
