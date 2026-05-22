@@ -73,7 +73,7 @@ char *get_branch_name(void)
 {
     char *line = NULL;
     size_t len = 0;
-    char *branch;
+    char *branch = NULL;
     FILE *fd = open_branch_dir();
 
     if (!fd)
@@ -90,7 +90,7 @@ char *get_branch_name(void)
     }
     branch = strdup(line + strlen("ref: refs/heads/"));
     free(line);
-    if (branch && branch[strlen(branch) - 1] == '\n')
+    if (branch && branch[0] != '\0' && branch[strlen(branch) - 1] == '\n')
         branch[strlen(branch) - 1] = '\0';
     return branch;
 }

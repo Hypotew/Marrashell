@@ -19,6 +19,8 @@
     #define THEMES_COUNT    5
 
 // Forward-déclaration pour éviter l'include circulaire avec shell.h
+// LOOP_H_ est le guard de shell.h ; ce bloc est skippé si shell.h est déjà inclus
+// TODO(Task-12): retirer ce guard après renommage de struct en s_shell dans shell.h
 #ifndef LOOP_H_
 typedef struct s_shell shell_t;
 #endif
