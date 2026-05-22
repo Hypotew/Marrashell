@@ -62,11 +62,12 @@ static void sidebar_draw_status(WINDOW *win, const char *last_cmd,
     mvwprintw(win, LINES - 5, 2, "%-*.*s",
         TUI_SIDEBAR_W - 3, TUI_SIDEBAR_W - 3, cwd);
     mvwprintw(win, LINES - 3, 1, "Last cmd:");
+    wattroff(win, COLOR_PAIR(5));
     wattron(win, last_status ? COLOR_PAIR(2) : COLOR_PAIR(1));
     mvwprintw(win, LINES - 2, 2, "%-*.*s",
         TUI_SIDEBAR_W - 3, TUI_SIDEBAR_W - 3,
         last_cmd ? last_cmd : "");
-    wattroff(win, COLOR_PAIR(1) | COLOR_PAIR(2) | COLOR_PAIR(5));
+    wattroff(win, last_status ? COLOR_PAIR(2) : COLOR_PAIR(1));
 }
 
 void tui_update_sidebar(tui_t *tui, const char *last_cmd, int last_status)
