@@ -16,13 +16,6 @@ static void input_ctx_init(input_ctx_t *ctx)
     memset(ctx->buf, 0, sizeof(ctx->buf));
     ctx->len = 0;
     ctx->cursor = 0;
-    ctx->hist = NULL;
-    ctx->hist_count = 0;
-    ctx->hist_idx = 0;
-}
-
-static void input_ctx_load_hist(input_ctx_t *ctx)
-{
     ctx->hist = load_history(&ctx->hist_count);
     ctx->hist_idx = ctx->hist_count;
 }
@@ -30,12 +23,13 @@ static void input_ctx_load_hist(input_ctx_t *ctx)
 static void input_render(tui_t *tui, input_ctx_t *ctx, int last_status)
 {
     int pair = last_status ? 2 : 1;
+    const char *prompt = last_status ? "✗ ❯ " : "✓ ❯ ";
 
     pthread_mutex_lock(&tui->lock);
     werase(tui->win_input);
     box(tui->win_input, 0, 0);
     wattron(tui->win_input, COLOR_PAIR(pair) | A_BOLD);
-    mvwprintw(tui->win_input, 1, 2, "%s", last_status ? "✗ ❯ " : "✓ ❯ ");
+    mvwprintw(tui->win_input, 1, 2, "%s", prompt);
     wattroff(tui->win_input, COLOR_PAIR(pair) | A_BOLD);
     wattron(tui->win_input, COLOR_PAIR(6));
     mvwprintw(tui->win_input, 1, 8, "%s", ctx->buf);
@@ -59,13 +53,23 @@ static bool input_handle_printable(input_ctx_t *ctx, int ch)
     return false;
 }
 
+static void input_dispatch(shell_t *shell, input_ctx_t *ctx, int ch)
+{
+    if (ch == KEY_UP)
+        input_handle_history(ctx, -1);
+    if (ch == KEY_DOWN)
+        input_handle_history(ctx, 1);
+    input_handle_edit(ctx, ch);
+    input_handle_ctrl(shell, ctx, ch);
+    input_handle_scroll(shell, ch);
+}
+
 char *tui_read_line(shell_t *shell)
 {
     input_ctx_t ctx;
     int ch;
 
     input_ctx_init(&ctx);
-    input_ctx_load_hist(&ctx);
     while (1) {
         input_render(shell->tui, &ctx, shell->last_status);
         ch = wgetch(shell->tui->win_input);
@@ -73,11 +77,7 @@ char *tui_read_line(shell_t *shell)
             free_history(ctx.hist, ctx.hist_count);
             return NULL;
         }
-        if (ch == KEY_UP)   input_handle_history(&ctx, -1);
-        if (ch == KEY_DOWN) input_handle_history(&ctx, 1);
-        input_handle_edit(&ctx, ch);
-        input_handle_ctrl(shell, &ctx, ch);
-        input_handle_scroll(shell, ch);
+        input_dispatch(shell, &ctx, ch);
         if (input_handle_printable(&ctx, ch))
             break;
     }
