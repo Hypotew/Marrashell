@@ -52,6 +52,7 @@ tui_t *tui_init(int theme_id)
     use_default_colors();
     tui->pipe_fds[0] = -1;
     tui->pipe_fds[1] = -1;
+    tui->orig_stdout_fd = -1;
     tui->running = true;
     pthread_mutex_init(&tui->lock, NULL);
     if (!tui_create_windows(tui) || !tui_init_pipe(tui)) {
@@ -73,12 +74,13 @@ void tui_destroy(tui_t *tui)
     tui->running = false;
     if (tui->pipe_fds[0] != -1)
         close(tui->pipe_fds[0]);
-    if (tui->orig_stdout_fd != 0) {
+    if (tui->orig_stdout_fd != -1) {
         dup2(tui->orig_stdout_fd, STDOUT_FILENO);
         dup2(tui->orig_stdout_fd, STDERR_FILENO);
         close(tui->orig_stdout_fd);
     }
-    pthread_join(tui->reader_thread, NULL);
+    if (tui->reader_thread)
+        pthread_join(tui->reader_thread, NULL);
     pthread_mutex_destroy(&tui->lock);
     delwin(tui->win_sidebar);
     delwin(tui->win_output);
