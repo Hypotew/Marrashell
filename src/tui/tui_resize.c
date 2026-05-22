@@ -26,6 +26,7 @@ static void sigwinch_handler(int sig)
     wresize(g_tui_for_resize->win_sidebar, LINES, TUI_SIDEBAR_W);
     wresize(g_tui_for_resize->win_output,  out_h, out_w);
     wresize(g_tui_for_resize->win_input,   TUI_INPUT_H, COLS);
+    wresize(g_tui_for_resize->pad_output,  TUI_PAD_H, out_w);
     mvwin(g_tui_for_resize->win_input,  LINES - TUI_INPUT_H, 0);
     clearok(stdscr, TRUE);
     refresh();

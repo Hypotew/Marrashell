@@ -35,6 +35,8 @@ static void theme_menu_draw(int selected)
     int x0 = (COLS - w) / 2;
     WINDOW *win = newwin(h, w, y0, x0);
 
+    if (!win)
+        return;
     werase(win);
     box(win, 0, 0);
     mvwprintw(win, 1, 2, "Choisir un theme  ↑↓ Enter Esc");
@@ -52,10 +54,14 @@ static void theme_menu_draw(int selected)
 
 static int theme_menu_handle_key(int *selected, int ch)
 {
-    if (ch == KEY_UP   && *selected > 0)               (*selected)--;
-    if (ch == KEY_DOWN && *selected < THEMES_COUNT - 1) (*selected)++;
-    if (ch == '\n' || ch == '\r') return 1;
-    if (ch == 27)                 return -1;
+    if (ch == KEY_UP && *selected > 0)
+        (*selected)--;
+    if (ch == KEY_DOWN && *selected < THEMES_COUNT - 1)
+        (*selected)++;
+    if (ch == '\n' || ch == '\r')
+        return 1;
+    if (ch == 27)
+        return -1;
     return 0;
 }
 
