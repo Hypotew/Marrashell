@@ -82,6 +82,12 @@ void tui_update_sidebar(tui_t *tui, const char *last_cmd, int last_status);
 // tui_input.c
 char *tui_read_line(shell_t *shell);
 
+// tui_input_keys.c
+void input_handle_history(input_ctx_t *ctx, int dir);
+void input_handle_edit(input_ctx_t *ctx, int ch);
+void input_handle_ctrl(shell_t *shell, input_ctx_t *ctx, int ch);
+void input_handle_scroll(shell_t *shell, int ch);
+
 // tui_theme_menu.c
 void tui_open_theme_menu(shell_t *shell);
 
