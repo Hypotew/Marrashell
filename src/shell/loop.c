@@ -50,6 +50,8 @@ static bool read_input(shell_t *shell, bool is_interactive)
             return true;
         return handle_eof(shell, is_interactive);
     }
+    if (is_interactive)
+        write(STDOUT_FILENO, "42sh > ", 7);
     return getline(&shell->line, &cap, stdin) != -1;
 }
 
@@ -79,6 +81,8 @@ int shell_loop(shell_t *shell)
     enum shell_status status = SHELL_CONTINUE;
     bool is_interactive = isatty(STDIN_FILENO);
 
+    if (shell->tui)
+        tui_update_sidebar(shell->tui, NULL, 0);
     while (status == SHELL_CONTINUE) {
         run_hook(shell, "precmd");
         if (!read_input(shell, is_interactive))
