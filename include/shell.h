@@ -11,6 +11,8 @@
     #include <unistd.h>
     #include <stdbool.h>
 
+typedef struct s_tui tui_t;
+
 typedef struct {
     char **env;
     char **locals;
@@ -18,6 +20,7 @@ typedef struct {
     int last_status;
     char *line;
     pid_t last_pid;
+    tui_t *tui;
 } shell_t;
 
 bool shell_init(shell_t *shell, char **envp);
