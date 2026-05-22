@@ -19,7 +19,9 @@
     #define THEMES_COUNT    5
 
 // Forward-déclaration pour éviter l'include circulaire avec shell.h
+#ifndef LOOP_H_
 typedef struct s_shell shell_t;
+#endif
 
 typedef struct {
     const char *name;

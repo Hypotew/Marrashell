@@ -12,6 +12,7 @@
 
 #include "mysh.h"
 #include "shell.h"
+#include "tui.h"
 
 bool is_in_repository(void)
 {
@@ -66,4 +67,30 @@ int display_branch(void)
     }
     safe_clean(&fd, &line);
     return SUCCESS_EXIT;
+}
+
+char *get_branch_name(void)
+{
+    char *line = NULL;
+    size_t len = 0;
+    char *branch;
+    FILE *fd = open_branch_dir();
+
+    if (!fd)
+        return NULL;
+    if (getline(&line, &len, fd) == -1) {
+        safe_clean(&fd, &line);
+        return NULL;
+    }
+    fclose(fd);
+    if (strncmp(line, "ref: refs/heads/",
+            strlen("ref: refs/heads/")) != 0) {
+        free(line);
+        return NULL;
+    }
+    branch = strdup(line + strlen("ref: refs/heads/"));
+    free(line);
+    if (branch && branch[strlen(branch) - 1] == '\n')
+        branch[strlen(branch) - 1] = '\0';
+    return branch;
 }
