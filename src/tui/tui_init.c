@@ -9,6 +9,7 @@
 #include "mysh.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
 static bool tui_create_windows(tui_t *tui)
 {
@@ -42,10 +43,13 @@ static bool tui_init_pipe(tui_t *tui)
 tui_t *tui_init(int theme_id)
 {
     tui_t *tui = calloc(1, sizeof(tui_t));
+    FILE *dbg = fopen("/tmp/marrashell_tui.log", "w");
 
     if (!tui)
         return NULL;
+    if (dbg) fprintf(dbg, "initscr LINES=%d COLS=%d\n", LINES, COLS);
     initscr();
+    if (dbg) fprintf(dbg, "after initscr LINES=%d COLS=%d\n", LINES, COLS);
     cbreak();
     noecho();
     start_color();
@@ -56,14 +60,18 @@ tui_t *tui_init(int theme_id)
     tui->running = true;
     pthread_mutex_init(&tui->lock, NULL);
     if (!tui_create_windows(tui) || !tui_init_pipe(tui)) {
+        if (dbg) { fprintf(dbg, "windows/pipe failed\n"); fclose(dbg); }
         tui_destroy(tui);
         return NULL;
     }
+    if (dbg) fprintf(dbg, "windows+pipe ok\n");
     tui_apply_theme(tui, theme_id);
     if (!tui_start_reader_thread(tui)) {
+        if (dbg) { fprintf(dbg, "thread failed\n"); fclose(dbg); }
         tui_destroy(tui);
         return NULL;
     }
+    if (dbg) { fprintf(dbg, "tui_init SUCCESS\n"); fclose(dbg); }
     return tui;
 }
 
