@@ -6,10 +6,13 @@
 */
 
 #include "shell.h"
+#include "env.h"
 #include "mysh.h"
 #include "utils.h"
 
+#include <limits.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -76,13 +79,57 @@ int display_prompt(int last_status)
     return SUCCESS_EXIT;
 }
 
+static void init_special_vars(shell_t *shell)
+{
+    char cwd[PATH_MAX];
+    char *term = env_get_value(shell->env, "TERM=");
+
+    if (getcwd(cwd, PATH_MAX) != NULL)
+        local_set_value(shell, "cwd", cwd);
+    if (term)
+        local_set_value(shell, "term", term);
+}
+
+static void shell_cleanup_partial(shell_t *shell)
+{
+    free_string_array(shell->env);
+    free(shell->locals);
+    free(shell->aliases);
+    shell->env = NULL;
+    shell->locals = NULL;
+    shell->aliases = NULL;
+}
+
 bool shell_init(shell_t *shell, char **envp)
 {
     shell->env = dup_string_array(envp);
+    shell->locals = NULL;
+    shell->aliases = NULL;
     if (shell->env == NULL)
         return false;
+    shell->locals = calloc(1, sizeof(char *));
+    shell->aliases = calloc(1, sizeof(char *));
+    if (!shell->locals || !shell->aliases) {
+        shell_cleanup_partial(shell);
+        return false;
+    }
     shell->last_status = SUCCESS_EXIT;
     shell->line = NULL;
     shell->last_pid = -1;
+    init_special_vars(shell);
     return true;
+}
+
+void shell_destroy(shell_t *shell)
+{
+    if (shell == NULL)
+        return;
+    free_string_array(shell->env);
+    free_string_array(shell->locals);
+    free_string_array(shell->aliases);
+    free(shell->line);
+    shell->env = NULL;
+    shell->locals = NULL;
+    shell->aliases = NULL;
+    shell->line = NULL;
 }

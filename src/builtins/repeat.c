@@ -39,11 +39,13 @@ int my_repeat(shell_t *shell, char **argv, bool *should_exit)
     unsigned int nb = 0;
 
     if (!argv[1] || !argv[2]) {
-        fprintf(stderr, "repeat: Too few arguments.\n");
+        if (fprintf(stderr, "repeat: Too few arguments.\n") < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     if (get_positive_nbr(argv[1], &nb) == FAILURE_EXIT) {
-        fprintf(stderr, "repeat: Badly formed number.\n");
+        if (fprintf(stderr, "repeat: Badly formed number.\n") < 0)
+            return FAILURE_EXIT;
         return FAILURE_EXIT;
     }
     return classic_repeat(shell, argv, nb, should_exit);

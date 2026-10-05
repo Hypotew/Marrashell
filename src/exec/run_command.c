@@ -8,7 +8,9 @@
 #include "builtins.h"
 #include "shell.h"
 #include "exec.h"
+#include "expand.h"
 #include "parser.h"
+#include "utils.h"
 #include "mysh.h"
 
 #include <stddef.h>
@@ -101,12 +103,32 @@ static void run_piped(shell_t *shell, command_t *pipeline, bool *should_exit)
     shell->last_status = WEXITSTATUS(status);
 }
 
+static bool apply_glob_to_pipeline(shell_t *shell, command_t *pipeline)
+{
+    char **expanded;
+
+    for (command_t *cmd = pipeline; cmd != NULL; cmd = cmd->next) {
+        if (!cmd->argv || !cmd->argv[0])
+            continue;
+        expanded = glob_expand_argv(cmd->argv);
+        if (!expanded) {
+            shell->last_status = 1;
+            return false;
+        }
+        free_string_array(cmd->argv);
+        cmd->argv = expanded;
+    }
+    return true;
+}
+
 static int run_pipeline(shell_t *shell, command_t *pipeline, bool *should_exit)
 {
     if (pipeline == NULL || shell == NULL) {
         *should_exit = true;
         return FAILURE_EXIT;
     }
+    if (!apply_glob_to_pipeline(shell, pipeline))
+        return SUCCESS_EXIT;
     if (pipeline->next == NULL && pipeline->redirs == NULL) {
         if (run_single(shell, pipeline, should_exit, false) == FAILURE_EXIT)
             return FAILURE_EXIT;

@@ -1,7 +1,21 @@
 NAME = 42sh
 CC = epiclang
 CFLAGS = -Wall -Wextra -I./include -g3
-LDFLAGS = -lncurses
+
+TEST_NAME = mysh_tests
+TEST_LDFLAGS = -lcriterion -lncurses
+TEST_SRCS = tests/test_utils.c \
+	   tests/test_parser.c \
+	   tests/test_glob.c \
+	   $(SRCS_DIR)/utils/string_array.c \
+	   $(SRCS_DIR)/utils/split_words.c \
+	   $(SRCS_DIR)/parser/tokenize.c \
+	   $(SRCS_DIR)/parser/parse_command.c \
+	   $(SRCS_DIR)/parser/parse_utils.c \
+	   $(SRCS_DIR)/parser/parse_create.c \
+	   $(SRCS_DIR)/parser/parse_append.c \
+	   $(SRCS_DIR)/parser/parse_free.c \
+	   $(SRCS_DIR)/expand/glob_expand.c
 
 SRCS_DIR = src
 SRCS = $(SRCS_DIR)/main.c \
@@ -11,7 +25,7 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/builtins/setenv.c \
 	   $(SRCS_DIR)/builtins/unsetenv.c \
 	   $(SRCS_DIR)/builtins/env.c \
-	   $(SRCS_DIR)/builtins/echo_last_status.c \
+	   $(SRCS_DIR)/builtins/echo.c \
 	   $(SRCS_DIR)/builtins/history.c \
 	   $(SRCS_DIR)/utils/history_utils.c \
 	   $(SRCS_DIR)/builtins/repeat.c \
@@ -32,9 +46,26 @@ SRCS = $(SRCS_DIR)/main.c \
 	   $(SRCS_DIR)/parser/parse_free.c \
 	   $(SRCS_DIR)/utils/string_array.c \
 	   $(SRCS_DIR)/utils/split_words.c \
-	   $(SRCS_DIR)/shell/readline.c \
-	   $(SRCS_DIR)/shell/readline_hist.c \
-	   $(SRCS_DIR)/git_analyse/git_check.c
+	   $(SRCS_DIR)/shortcuts/terminal_mode.c \
+	   $(SRCS_DIR)/shortcuts/input_controls.c \
+	   $(SRCS_DIR)/shortcuts/interactive_inputs.c \
+	   $(SRCS_DIR)/shortcuts/history_navigation.c \
+	   $(SRCS_DIR)/git_analyse/git_check.c \
+	   $(SRCS_DIR)/expand/expand.c \
+	   $(SRCS_DIR)/expand/history_expand.c \
+	   $(SRCS_DIR)/expand/history_lookup.c \
+	   $(SRCS_DIR)/expand/var_expand.c \
+	   $(SRCS_DIR)/builtins/set.c \
+	   $(SRCS_DIR)/builtins/unset.c \
+	   $(SRCS_DIR)/builtins/alias.c \
+	   $(SRCS_DIR)/builtins/unalias.c \
+	   $(SRCS_DIR)/builtins/where.c \
+	   $(SRCS_DIR)/builtins/which.c \
+	   $(SRCS_DIR)/utils/which_where_utils.c \
+	   $(SRCS_DIR)/env/locals.c \
+	   $(SRCS_DIR)/env/aliases.c \
+	   $(SRCS_DIR)/expand/alias_expand.c \
+	   $(SRCS_DIR)/expand/glob_expand.c
 
 BUILD_DIR = build
 OBJS_DIR = $(BUILD_DIR)/obj
@@ -52,7 +83,7 @@ $(NAME): $(TARGET)
 
 $(TARGET):$(OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) -o $(TARGET) $(OBJS) $(LDFLAGS)
+	$(CC) -o $(TARGET) $(OBJS)
 
 
 $(OBJS_DIR)/%.o: $(SRCS_DIR)/%.c include/*.h
@@ -65,13 +96,17 @@ clean:
 	rm -rf $(OBJS_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(TEST_NAME)
+	rm -f *.gcno *.gcda *.gcov
 
 re: fclean all
 
-tests_run: all
-	$(MAKE) -C tests re
-	./tests/mysh_tests
+$(TEST_NAME): $(TEST_SRCS)
+	gcc -Wall -Wextra -I./include -g3 --coverage -o $(TEST_NAME) $(TEST_SRCS) $(TEST_LDFLAGS)
+
+tests_run: $(TEST_NAME)
+	./$(TEST_NAME)
+	gcovr --exclude tests/
 
 compdb:
 	@mkdir -p $(BUILD_DIR)

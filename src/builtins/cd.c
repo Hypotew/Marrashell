@@ -7,6 +7,7 @@
 
 #include "builtins.h"
 #include "env.h"
+#include "exec.h"
 #include "mysh.h"
 #include "utils.h"
 
@@ -57,6 +58,18 @@ static int handle_chdir_error(const char *target)
     return FAILURE_EXIT;
 }
 
+static void run_cd_hooks(shell_t *shell)
+{
+    char cwd[PATH_MAX];
+    char *cwdcmd = NULL;
+
+    if (getcwd(cwd, PATH_MAX) != NULL)
+        local_set_value(shell, "cwd", cwd);
+    cwdcmd = local_get_value(shell->locals, "cwdcmd");
+    if (cwdcmd != NULL)
+        run_command(shell, cwdcmd);
+}
+
 static int cd_to(shell_t *shell, const char *target)
 {
     char oldpwd[PATH_MAX];
@@ -69,6 +82,7 @@ static int cd_to(shell_t *shell, const char *target)
         return handle_chdir_error(target);
     if (sync_pwd_vars(shell, oldpwd) != SUCCESS_EXIT)
         return FAILURE_EXIT;
+    run_cd_hooks(shell);
     return SUCCESS_EXIT;
 }
 
@@ -82,6 +96,13 @@ static int cd_home(shell_t *shell)
         return FAILURE_EXIT;
     }
     return cd_to(shell, home_path);
+}
+
+static int print_oldpwd_not_set(void)
+{
+    if (fprintf(stderr, "cd: OLDPWD not set\n") < 0)
+        return FAILURE_EXIT;
+    return FAILURE_EXIT;
 }
 
 int my_cd(shell_t *shell, char **argv,
@@ -99,10 +120,8 @@ int my_cd(shell_t *shell, char **argv,
         return cd_home(shell);
     if (strcmp(argv[1], "-") == 0) {
         oldpwd = env_get_value(shell->env, "OLDPWD=");
-        if (!oldpwd) {
-            fprintf(stderr, "cd: OLDPWD not set\n");
-            return FAILURE_EXIT;
-        }
+        if (!oldpwd)
+            return print_oldpwd_not_set();
         return cd_to(shell, oldpwd);
     }
     return cd_to(shell, argv[1]);
